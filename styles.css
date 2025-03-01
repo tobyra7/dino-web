@@ -1,0 +1,51 @@
+body {
+    background-color: #f0f0f0; /* Fondo gris claro sobrio */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Ocupa toda la altura de la pantalla */
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.game-container {
+    background-color: white; /* Fondo blanco para el juego */
+    border: 2px solid #333; /* Recuadro oscuro */
+    padding: 20px;
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+h1 {
+    text-align: center;
+    color: #333; /* Color oscuro para el título */
+    margin: 0 0 20px 0;
+}
+
+#gameCanvas {
+    display: block; /* Evita márgenes raros */
+}
+
+#restartButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #4CAF50; /* Verde para el botón */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#restartButton:hover {
+    background-color: #45a049; /* Verde más oscuro al pasar el ratón */
+}
+
+footer {
+    margin-top: 20px;
+    color: #666; /* Gris oscuro para el crédito */
+    font-size: 14px;
+}
