@@ -10,7 +10,7 @@ let dino = {
     height: 70,
     dy: 0,
     gravity: 0.5,
-    jumpPower: -12,
+    jumpPower: -4,
     grounded: true,
     jumps: 0,
     maxJumps: 2
