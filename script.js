@@ -9,7 +9,7 @@ let dino = {
     width: 70,
     height: 70,
     dy: 0,
-    gravity: 0.5, // Valor inicial (1g)
+    gravity: 0.5,
     jumpPower: -12,
     grounded: true,
     jumps: 0,
@@ -28,31 +28,82 @@ const restartButton = document.getElementById("restartButton");
 
 // Elementos de los sliders
 const gravitySlider = document.getElementById("gravitySlider");
-const gravityValue = document.getElementById("gravityValue");
 const frequencySlider = document.getElementById("frequencySlider");
-const frequencyValue = document.getElementById("frequencyValue");
 const treeSizeSlider = document.getElementById("treeSizeSlider");
-const treeSizeValue = document.getElementById("treeSizeValue");
 
 // Variables para sliders
-let minObstacleFrequency = parseInt(frequencySlider.value); // Frecuencia mínima en ms
-let treeSizeMultiplier = parseFloat(treeSizeSlider.value); // Multiplicador de tamaño
+let minObstacleFrequency = parseInt(frequencySlider.value);
+let treeSizeMultiplier = parseFloat(treeSizeSlider.value);
+
+// Función para actualizar el valor en el slider
+function updateSliderValue(slider, unit) {
+    const value = slider.value;
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const percentage = ((value - min) / (max - min)) * 100;
+    const displayValue = unit === "s" ? (value / 1000).toFixed(1) : value;
+    slider.style.setProperty("--value", `${percentage}%`);
+    slider.style.setProperty("--display-value", `"${displayValue}${unit}"`);
+}
+
+// Estilos dinámicos para mostrar el valor en el thumb
+const style = document.createElement("style");
+style.textContent = `
+    input[type="range"] {
+        --value: 50%;
+        --display-value: "1";
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        position: relative;
+        color: white;
+        text-align: center;
+        font-size: 12px;
+        line-height: 20px;
+    }
+    input[type="range"]::-webkit-slider-thumb:after {
+        content: var(--display-value);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    input[type="range"]::-moz-range-thumb {
+        position: relative;
+        color: white;
+        text-align: center;
+        font-size: 12px;
+        line-height: 20px;
+    }
+    input[type="range"]::-moz-range-thumb:after {
+        content: var(--display-value);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+`;
+document.head.appendChild(style);
 
 // Actualizar valores desde sliders
 gravitySlider.addEventListener("input", () => {
-    dino.gravity = parseFloat(gravitySlider.value) * 0.5; // Escalar de 0.2g-2g a 0.1-1
-    gravityValue.textContent = `${gravitySlider.value}g`;
+    dino.gravity = parseFloat(gravitySlider.value) * 0.5;
+    updateSliderValue(gravitySlider, "g");
 });
+updateSliderValue(gravitySlider, "g"); // Valor inicial
 
 frequencySlider.addEventListener("input", () => {
     minObstacleFrequency = parseInt(frequencySlider.value);
-    frequencyValue.textContent = `${(minObstacleFrequency / 1000).toFixed(1)}s`;
+    updateSliderValue(frequencySlider, "s");
 });
+updateSliderValue(frequencySlider, "s"); // Valor inicial
 
 treeSizeSlider.addEventListener("input", () => {
     treeSizeMultiplier = parseFloat(treeSizeSlider.value);
-    treeSizeValue.textContent = `${treeSizeMultiplier.toFixed(1)}x`;
+    updateSliderValue(treeSizeSlider, "x");
 });
+updateSliderValue(treeSizeSlider, "x"); // Valor inicial
 
 // Generar obstáculos aleatorios
 let nextObstacleTime = 0;

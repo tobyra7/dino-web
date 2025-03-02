@@ -8,24 +8,31 @@
 </head>
 <body>
     <div class="game-container">
-        <h1>Dino Runner</h1>
+        <h1>El Dino siempre corrio</h1>
         <canvas id="gameCanvas" width="800" height="400"></canvas>
         <button id="restartButton" style="display: none; padding: 10px 20px;">Jugar de nuevo</button>
         <div class="controls">
-            <label for="gravitySlider">Gravedad (0.2g - 2g):</label>
-            <input type="range" id="gravitySlider" min="0.2" max="2" step="0.1" value="1">
-            <span id="gravityValue">1g</span>
-
-            <label for="frequencySlider">Frecuencia mínima de obstáculos (0s - 3s):</label>
-            <input type="range" id="frequencySlider" min="0" max="3000" step="100" value="300">
-            <span id="frequencyValue">0.3s</span>
-
-            <label for="treeSizeSlider">Tamaño de los árboles (1x - 5x):</label>
-            <input type="range" id="treeSizeSlider" min="1" max="5" step="0.1" value="1">
-            <span id="treeSizeValue">1x</span>
+            <div class="control-row">
+                <label for="gravitySlider">Gravedad:</label>
+                <span class="min-value">0.2g</span>
+                <input type="range" id="gravitySlider" min="0.2" max="2" step="0.1" value="1">
+                <span class="max-value">2g</span>
+            </div>
+            <div class="control-row">
+                <label for="frequencySlider">Frecuencia mínima árboles:</label>
+                <span class="min-value">0s</span>
+                <input type="range" id="frequencySlider" min="0" max="3000" step="100" value="300">
+                <span class="max-value">3s</span>
+            </div>
+            <div class="control-row">
+                <label for="treeSizeSlider">Tamaño árboles:</label>
+                <span class="min-value">1x</span>
+                <input type="range" id="treeSizeSlider" min="1" max="5" step="0.1" value="1">
+                <span class="max-value">5x</span>
+            </div>
         </div>
     </div>
-    <footer>Designed by el choni. Cualquier similitud con otro juego es pura coincidencia</footer>
+    <footer>Designed by el choni. Cualquier similutd con otro juego es de puro ocote.</footer>
     <script src="script.js"></script>
 </body>
 </html>
