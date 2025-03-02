@@ -55,17 +55,20 @@ h1 {
     display: flex;
     align-items: center;
     gap: 10px;
+    position: relative;
 }
 
 .control-row label {
     font-size: 14px;
     color: #333;
-    width: 120px; /* Ancho fijo para alineación */
+    width: 170px;
 }
 
 .control-row .min-value, .control-row .max-value {
     font-size: 12px;
     color: #666;
+    width: 30px; /* Ancho fijo para alinear sliders */
+    text-align: center; /* Centrar el texto dentro del ancho fijo */
 }
 
 .control-row input[type="range"] {
@@ -102,6 +105,18 @@ h1 {
 .control-row input[type="range"]::-webkit-slider-thumb:hover,
 .control-row input[type="range"]::-moz-range-thumb:hover {
     background: #45a049;
+}
+
+.slider-value {
+    position: absolute;
+    top: 0px; /* Ajustado previamente */
+    width: 40px;
+    text-align: center;
+    font-size: 12px;
+    color: #fff;
+    pointer-events: none;
+    z-index: 2;
+    transform: translateX(-50%);
 }
 
 footer {
