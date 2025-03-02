@@ -1,30 +1,30 @@
 body {
-    background-color: #f0f0f0; /* Fondo gris claro sobrio */
+    background-color: #f0f0f0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh; /* Ocupa toda la altura de la pantalla */
+    min-height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
 }
 
 .game-container {
-    background-color: white; /* Fondo blanco para el juego */
-    border: 2px solid #333; /* Recuadro oscuro */
+    background-color: white;
+    border: 2px solid #333;
     padding: 20px;
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     text-align: center;
-    color: #333; /* Color oscuro para el título */
+    color: #333;
     margin: 0 0 20px 0;
 }
 
 #gameCanvas {
-    display: block; /* Evita márgenes raros */
+    display: block;
 }
 
 #restartButton {
@@ -32,7 +32,7 @@ h1 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #4CAF50; /* Verde para el botón */
+    background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
@@ -41,11 +41,32 @@ h1 {
 }
 
 #restartButton:hover {
-    background-color: #45a049; /* Verde más oscuro al pasar el ratón */
+    background-color: #45a049;
+}
+
+.controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.controls label {
+    font-size: 14px;
+    color: #333;
+}
+
+.controls input[type="range"] {
+    width: 100%;
+}
+
+.controls span {
+    margin-left: 10px;
+    font-size: 14px;
 }
 
 footer {
     margin-top: 20px;
-    color: #666; /* Gris oscuro para el crédito */
+    color: #666;
     font-size: 14px;
 }

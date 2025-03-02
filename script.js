@@ -9,7 +9,7 @@ let dino = {
     width: 70,
     height: 70,
     dy: 0,
-    gravity: 0.5,
+    gravity: 0.5, // Valor inicial (1g)
     jumpPower: -12,
     grounded: true,
     jumps: 0,
@@ -26,26 +26,54 @@ let score = 0;
 let gameOver = false;
 const restartButton = document.getElementById("restartButton");
 
+// Elementos de los sliders
+const gravitySlider = document.getElementById("gravitySlider");
+const gravityValue = document.getElementById("gravityValue");
+const frequencySlider = document.getElementById("frequencySlider");
+const frequencyValue = document.getElementById("frequencyValue");
+const treeSizeSlider = document.getElementById("treeSizeSlider");
+const treeSizeValue = document.getElementById("treeSizeValue");
+
+// Variables para sliders
+let minObstacleFrequency = parseInt(frequencySlider.value); // Frecuencia mínima en ms
+let treeSizeMultiplier = parseFloat(treeSizeSlider.value); // Multiplicador de tamaño
+
+// Actualizar valores desde sliders
+gravitySlider.addEventListener("input", () => {
+    dino.gravity = parseFloat(gravitySlider.value) * 0.5; // Escalar de 0.2g-2g a 0.1-1
+    gravityValue.textContent = `${gravitySlider.value}g`;
+});
+
+frequencySlider.addEventListener("input", () => {
+    minObstacleFrequency = parseInt(frequencySlider.value);
+    frequencyValue.textContent = `${(minObstacleFrequency / 1000).toFixed(1)}s`;
+});
+
+treeSizeSlider.addEventListener("input", () => {
+    treeSizeMultiplier = parseFloat(treeSizeSlider.value);
+    treeSizeValue.textContent = `${treeSizeMultiplier.toFixed(1)}x`;
+});
+
 // Generar obstáculos aleatorios
 let nextObstacleTime = 0;
 
 function spawnObstacles(timestamp) {
     if (timestamp >= nextObstacleTime) {
         createObstacle();
-        nextObstacleTime = timestamp + (Math.random() * 2000) + 300; // Ajustado por vos
+        nextObstacleTime = timestamp + (Math.random() * 2000) + minObstacleFrequency;
     }
 }
 
 // Propiedades de un obstáculo (arbolito)
 function createObstacle() {
-    let trunkHeight = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
-    let canopySize = Math.floor(Math.random() * (30 - 20 + 1)) + 20;
+    let baseTrunkHeight = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+    let baseCanopySize = Math.floor(Math.random() * (30 - 20 + 1)) + 20;
     let obstacle = {
         x: canvas.width,
-        y: 340 - trunkHeight - canopySize,
-        trunkWidth: 10,
-        trunkHeight: trunkHeight,
-        canopySize: canopySize,
+        y: 340 - (baseTrunkHeight * treeSizeMultiplier) - (baseCanopySize * treeSizeMultiplier),
+        trunkWidth: 10 * treeSizeMultiplier,
+        trunkHeight: baseTrunkHeight * treeSizeMultiplier,
+        canopySize: baseCanopySize * treeSizeMultiplier,
         speed: 3
     };
     obstacles.push(obstacle);
@@ -55,22 +83,22 @@ function createObstacle() {
 function drawDino() {
     ctx.fillStyle = "green";
     ctx.beginPath();
-    ctx.fillRect(dino.x + 20, dino.y + 40, 30, 10); // Base del cuerpo
-    ctx.fillRect(dino.x + 25, dino.y + 30, 30, 10); // Medio
-    ctx.fillRect(dino.x + 30, dino.y + 20, 30, 10); // Superior
-    ctx.fillRect(dino.x + 40, dino.y, 30, 20); // Cabeza
-    ctx.fillRect(dino.x + 10, dino.y + 40, 10, 10); // Cola base
-    ctx.fillRect(dino.x, dino.y + 50, 10, 10); // Cola medio
-    ctx.fillRect(dino.x - 10, dino.y + 60, 10, 10); // Cola punta
-    let legHeight = dino.grounded ? 20 : 25; // Efecto de esfuerzo al saltar
-    ctx.fillRect(dino.x + 20, dino.y + 50, 10, legHeight); // Pierna trasera
-    ctx.fillRect(dino.x + 35, dino.y + 50, 10, legHeight); // Pierna delantera
-    ctx.fillRect(dino.x + 50, dino.y + 25, 10, 5); // Brazo superior
-    ctx.fillRect(dino.x + 50, dino.y + 35, 10, 5); // Brazo inferior
+    ctx.fillRect(dino.x + 20, dino.y + 40, 30, 10);
+    ctx.fillRect(dino.x + 25, dino.y + 30, 30, 10);
+    ctx.fillRect(dino.x + 30, dino.y + 20, 30, 10);
+    ctx.fillRect(dino.x + 40, dino.y, 30, 20);
+    ctx.fillRect(dino.x + 10, dino.y + 40, 10, 10);
+    ctx.fillRect(dino.x, dino.y + 50, 10, 10);
+    ctx.fillRect(dino.x - 10, dino.y + 60, 10, 10);
+    let legHeight = dino.grounded ? 20 : 25;
+    ctx.fillRect(dino.x + 20, dino.y + 50, 10, legHeight);
+    ctx.fillRect(dino.x + 35, dino.y + 50, 10, legHeight);
+    ctx.fillRect(dino.x + 50, dino.y + 25, 10, 5);
+    ctx.fillRect(dino.x + 50, dino.y + 35, 10, 5);
     ctx.fillStyle = "white";
-    ctx.fillRect(dino.x + 50, dino.y + 5, 5, 5); // Ojo
+    ctx.fillRect(dino.x + 50, dino.y + 5, 5, 5);
     ctx.fillStyle = "black";
-    ctx.fillRect(dino.x + 52, dino.y + 7, 2, 2); // Pupila
+    ctx.fillRect(dino.x + 52, dino.y + 7, 2, 2);
 }
 
 // Actualizar la posición del dinosaurio
