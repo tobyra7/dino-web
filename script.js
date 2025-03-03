@@ -2,6 +2,9 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// Obtener el elemento de audio
+const backgroundMusic = document.getElementById("backgroundMusic");
+
 // Propiedades del dinosaurio
 let dino = {
     x: 50,
@@ -57,18 +60,14 @@ function updateSliderValue(slider, valueElement, unit) {
     const displayValue = unit === "s" ? (value / 1000).toFixed(1) : value;
     valueElement.textContent = `${displayValue}${unit}`;
 
-    // Obtener la posición absoluta del slider en la página
     const sliderRect = slider.getBoundingClientRect();
-    const sliderLeft = sliderRect.left; // Coordenada izquierda del slider
+    const sliderLeft = sliderRect.left;
     const sliderWidth = slider.offsetWidth;
-    const thumbWidth = 40; // Ancho del thumb
-
-    // Calcular la posición del thumb respecto al inicio del slider
+    const thumbWidth = 40;
     const thumbPosition = percentage * (sliderWidth - thumbWidth) + (thumbWidth / 2);
-    // Ajustar la posición del span respecto al contenedor padre (.control-row)
     const containerRect = slider.parentNode.getBoundingClientRect();
-    const offsetLeft = sliderLeft - containerRect.left; // Offset del slider respecto al contenedor
-    const centeredPosition = offsetLeft + thumbPosition - (valueElement.offsetWidth / 2) + 18; // Ajuste de +18px
+    const offsetLeft = sliderLeft - containerRect.left;
+    const centeredPosition = offsetLeft + thumbPosition - (valueElement.offsetWidth / 2) + 18;
     valueElement.style.left = `${centeredPosition}px`;
 }
 
@@ -78,7 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSliderValue(frequencySlider, frequencyValue, "s");
     updateSliderValue(treeSizeSlider, treeSizeValue, "x");
 
-    // Actualizar valores desde sliders
     gravitySlider.addEventListener("input", () => {
         dino.gravity = parseFloat(gravitySlider.value) * 0.5;
         updateSliderValue(gravitySlider, gravityValue, "g");
@@ -92,6 +90,11 @@ document.addEventListener("DOMContentLoaded", () => {
     treeSizeSlider.addEventListener("input", () => {
         treeSizeMultiplier = parseFloat(treeSizeSlider.value);
         updateSliderValue(treeSizeSlider, treeSizeValue, "x");
+    });
+
+    // Iniciar la música al cargar la página
+    backgroundMusic.play().catch(error => {
+        console.log("No se pudo reproducir automáticamente:", error);
     });
 });
 
@@ -231,6 +234,7 @@ function checkCollision() {
         ) {
             restartButton.style.display = "block";
             gameOver = true;
+            backgroundMusic.pause(); // Pausar música al colisionar
             return true;
         }
         if (
@@ -240,6 +244,7 @@ function checkCollision() {
         ) {
             restartButton.style.display = "block";
             gameOver = true;
+            backgroundMusic.pause(); // Pausar música al colisionar
             return true;
         }
     }
@@ -275,7 +280,7 @@ document.addEventListener("keydown", function(event) {
 
 // Escuchar el toque en la pantalla para saltar
 canvas.addEventListener("touchstart", function(event) {
-    event.preventDefault(); // Evitar comportamiento predeterminado (como scroll)
+    event.preventDefault();
     if (dino.jumps < dino.maxJumps) {
         dino.dy = dino.jumpPower;
         dino.grounded = false;
@@ -294,6 +299,10 @@ function restartGame() {
     gameOver = false;
     nextObstacleTime = 0;
     restartButton.style.display = "none";
+    backgroundMusic.currentTime = 0; // Reiniciar música al inicio
+    backgroundMusic.play().catch(error => {
+        console.log("No se pudo reproducir al reiniciar:", error);
+    });
     gameLoop();
 }
 
