@@ -92,9 +92,17 @@ document.addEventListener("DOMContentLoaded", () => {
         updateSliderValue(treeSizeSlider, treeSizeValue, "x");
     });
 
-    // Iniciar la música al cargar la página
+    // Depuración: Verificar si el audio está cargado
+    backgroundMusic.addEventListener("canplaythrough", () => {
+        console.log("Audio completamente cargado y listo para reproducirse");
+        backgroundMusic.play().catch(error => {
+            console.log("No se pudo reproducir después de cargar:", error);
+        });
+    });
+
+    // Intentar reproducir al cargar (puede fallar por políticas de autoplay)
     backgroundMusic.play().catch(error => {
-        console.log("No se pudo reproducir automáticamente:", error);
+        console.log("Autoplay bloqueado, esperando interacción:", error);
     });
 });
 
@@ -234,7 +242,7 @@ function checkCollision() {
         ) {
             restartButton.style.display = "block";
             gameOver = true;
-            backgroundMusic.pause(); // Pausar música al colisionar
+            backgroundMusic.pause();
             return true;
         }
         if (
@@ -244,7 +252,7 @@ function checkCollision() {
         ) {
             restartButton.style.display = "block";
             gameOver = true;
-            backgroundMusic.pause(); // Pausar música al colisionar
+            backgroundMusic.pause();
             return true;
         }
     }
@@ -275,6 +283,9 @@ document.addEventListener("keydown", function(event) {
         dino.dy = dino.jumpPower;
         dino.grounded = false;
         dino.jumps++;
+        backgroundMusic.play().catch(error => {
+            console.log("No se pudo reproducir con tecla:", error);
+        });
     }
 });
 
@@ -285,6 +296,9 @@ canvas.addEventListener("touchstart", function(event) {
         dino.dy = dino.jumpPower;
         dino.grounded = false;
         dino.jumps++;
+        backgroundMusic.play().catch(error => {
+            console.log("No se pudo reproducir con toque:", error);
+        });
     }
 });
 
@@ -299,7 +313,7 @@ function restartGame() {
     gameOver = false;
     nextObstacleTime = 0;
     restartButton.style.display = "none";
-    backgroundMusic.currentTime = 0; // Reiniciar música al inicio
+    backgroundMusic.currentTime = 0;
     backgroundMusic.play().catch(error => {
         console.log("No se pudo reproducir al reiniciar:", error);
     });
