@@ -273,6 +273,16 @@ document.addEventListener("keydown", function(event) {
     }
 });
 
+// Escuchar el toque en la pantalla para saltar
+canvas.addEventListener("touchstart", function(event) {
+    event.preventDefault(); // Evitar comportamiento predeterminado (como scroll)
+    if (dino.jumps < dino.maxJumps) {
+        dino.dy = dino.jumpPower;
+        dino.grounded = false;
+        dino.jumps++;
+    }
+});
+
 // Reiniciar el juego
 function restartGame() {
     dino.y = 340 - dino.height;
