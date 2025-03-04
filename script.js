@@ -2,8 +2,9 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Obtener el elemento de audio
+// Obtener los elementos de audio
 const backgroundMusic = document.getElementById("backgroundMusic");
+const crashSound = document.getElementById("crashSound");
 
 // Propiedades del dinosaurio
 let dino = {
@@ -27,12 +28,20 @@ let clouds = [
 ];
 let score = 0;
 let gameOver = false;
+let gameStarted = false;
+const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
+const resetSlidersButton = document.getElementById("resetSliders");
 
 // Elementos de los sliders
 const gravitySlider = document.getElementById("gravitySlider");
 const frequencySlider = document.getElementById("frequencySlider");
 const treeSizeSlider = document.getElementById("treeSizeSlider");
+
+// Valores por defecto de los sliders
+const defaultGravity = 1;
+const defaultFrequency = 300;
+const defaultTreeSize = 1;
 
 // Variables para sliders
 let minObstacleFrequency = parseInt(frequencySlider.value);
@@ -60,15 +69,37 @@ function updateSliderValue(slider, valueElement, unit) {
     const displayValue = unit === "s" ? (value / 1000).toFixed(1) : value;
     valueElement.textContent = `${displayValue}${unit}`;
 
+    // Obtener el contenedor .control-row padre
+    const controlRow = slider.parentNode;
     const sliderRect = slider.getBoundingClientRect();
-    const sliderLeft = sliderRect.left;
+    const controlRowRect = controlRow.getBoundingClientRect();
+
+    // Calcular el offset del slider respecto al contenedor .control-row
+    const sliderOffsetLeft = sliderRect.left - controlRowRect.left;
+
+    // Calcular la posición del thumb como porcentaje del ancho del slider
     const sliderWidth = slider.offsetWidth;
-    const thumbWidth = 40;
+    const thumbWidth = 40; // Ancho del thumb en CSS
     const thumbPosition = percentage * (sliderWidth - thumbWidth) + (thumbWidth / 2);
-    const containerRect = slider.parentNode.getBoundingClientRect();
-    const offsetLeft = sliderLeft - containerRect.left;
-    const centeredPosition = offsetLeft + thumbPosition - (valueElement.offsetWidth / 2) + 18;
-    valueElement.style.left = `${centeredPosition}px`;
+
+    // Posición absoluta del label respecto al contenedor, centrada sobre el thumb
+    const absolutePosition = sliderOffsetLeft + thumbPosition;
+    valueElement.style.left = `${absolutePosition}px`; // Posición absoluta dentro de .control-row
+}
+
+// Función para reiniciar sliders a valores por defecto
+function resetSliders() {
+    gravitySlider.value = defaultGravity;
+    frequencySlider.value = defaultFrequency;
+    treeSizeSlider.value = defaultTreeSize;
+
+    dino.gravity = parseFloat(gravitySlider.value) * 0.5;
+    minObstacleFrequency = parseInt(frequencySlider.value);
+    treeSizeMultiplier = parseFloat(treeSizeSlider.value);
+
+    updateSliderValue(gravitySlider, gravityValue, "g");
+    updateSliderValue(frequencySlider, frequencyValue, "s");
+    updateSliderValue(treeSizeSlider, treeSizeValue, "x");
 }
 
 // Asegurar que los valores iniciales se establezcan después de cargar el DOM
@@ -92,17 +123,21 @@ document.addEventListener("DOMContentLoaded", () => {
         updateSliderValue(treeSizeSlider, treeSizeValue, "x");
     });
 
-    // Depuración: Verificar si el audio está cargado
-    backgroundMusic.addEventListener("canplaythrough", () => {
-        console.log("Audio completamente cargado y listo para reproducirse");
-        backgroundMusic.play().catch(error => {
-            console.log("No se pudo reproducir después de cargar:", error);
-        });
+    startButton.addEventListener("click", startGame);
+    resetSlidersButton.addEventListener("click", resetSliders);
+
+    // Permitir iniciar con barra espaciadora o toque en el canvas
+    document.addEventListener("keydown", function(event) {
+        if (event.code === "Space" && !gameStarted && !gameOver) {
+            startGame();
+        }
     });
 
-    // Intentar reproducir al cargar (puede fallar por políticas de autoplay)
-    backgroundMusic.play().catch(error => {
-        console.log("Autoplay bloqueado, esperando interacción:", error);
+    canvas.addEventListener("touchstart", function(event) {
+        if (!gameStarted && !gameOver) {
+            event.preventDefault();
+            startGame();
+        }
     });
 });
 
@@ -243,6 +278,7 @@ function checkCollision() {
             restartButton.style.display = "block";
             gameOver = true;
             backgroundMusic.pause();
+            crashSound.play().catch(error => console.log("Error al reproducir choque:", error));
             return true;
         }
         if (
@@ -253,6 +289,7 @@ function checkCollision() {
             restartButton.style.display = "block";
             gameOver = true;
             backgroundMusic.pause();
+            crashSound.play().catch(error => console.log("Error al reproducir choque:", error));
             return true;
         }
     }
@@ -277,30 +314,41 @@ function drawGround() {
     ctx.stroke();
 }
 
-// Escuchar la tecla para saltar
+// Escuchar la tecla para saltar o iniciar
 document.addEventListener("keydown", function(event) {
-    if (event.code === "Space" && dino.jumps < dino.maxJumps) {
+    if (event.code === "Space" && !gameStarted && !gameOver) {
+        startGame();
+    } else if (event.code === "Space" && dino.jumps < dino.maxJumps && gameStarted) {
         dino.dy = dino.jumpPower;
         dino.grounded = false;
         dino.jumps++;
-        backgroundMusic.play().catch(error => {
-            console.log("No se pudo reproducir con tecla:", error);
-        });
+        backgroundMusic.play().catch(error => console.log("Error al reproducir música con tecla:", error));
     }
 });
 
-// Escuchar el toque en la pantalla para saltar
+// Escuchar el toque en la pantalla para saltar o iniciar
 canvas.addEventListener("touchstart", function(event) {
-    event.preventDefault();
-    if (dino.jumps < dino.maxJumps) {
-        dino.dy = dino.jumpPower;
-        dino.grounded = false;
-        dino.jumps++;
-        backgroundMusic.play().catch(error => {
-            console.log("No se pudo reproducir con toque:", error);
-        });
+    if (!gameStarted && !gameOver) {
+        event.preventDefault();
+        startGame();
+    } else if (gameStarted) {
+        event.preventDefault();
+        if (dino.jumps < dino.maxJumps) {
+            dino.dy = dino.jumpPower;
+            dino.grounded = false;
+            dino.jumps++;
+            backgroundMusic.play().catch(error => console.log("Error al reproducir música con toque:", error));
+        }
     }
 });
+
+// Iniciar el juego
+function startGame() {
+    startButton.style.display = "none";
+    gameStarted = true;
+    backgroundMusic.play().catch(error => console.log("Error al reproducir música al iniciar:", error));
+    gameLoop();
+}
 
 // Reiniciar el juego
 function restartGame() {
@@ -314,9 +362,7 @@ function restartGame() {
     nextObstacleTime = 0;
     restartButton.style.display = "none";
     backgroundMusic.currentTime = 0;
-    backgroundMusic.play().catch(error => {
-        console.log("No se pudo reproducir al reiniciar:", error);
-    });
+    backgroundMusic.play().catch(error => console.log("Error al reproducir música al reiniciar:", error));
     gameLoop();
 }
 
@@ -325,7 +371,7 @@ restartButton.addEventListener("click", restartGame);
 
 // Bucle principal del juego
 function gameLoop(timestamp = 0) {
-    if (gameOver) return;
+    if (gameOver || !gameStarted) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     updateDino();
     drawDino();
@@ -341,6 +387,3 @@ function gameLoop(timestamp = 0) {
         requestAnimationFrame(gameLoop);
     }
 }
-
-// Iniciar el juego
-gameLoop();
