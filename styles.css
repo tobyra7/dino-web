@@ -54,6 +54,8 @@ h1 {
 
 #resetSliders {
     padding: 5px 10px;
+    margin-left: 10px;
+    vertical-align: middle; /* Alineación vertical con los sliders */
 }
 
 .controls {
@@ -65,7 +67,7 @@ h1 {
 
 .control-row {
     display: flex;
-    align-items: center;
+    align-items: center; /* Asegura que todos los elementos estén alineados verticalmente */
     gap: 10px;
     position: relative;
 }
@@ -121,18 +123,18 @@ h1 {
 
 .slider-value {
     position: absolute;
-    bottom: 50%; /* Centrar verticalmente respecto al thumb */
-    left: 0; /* Será ajustado dinámicamente por JS */
-    width: 40px; /* Igual al ancho del thumb */
+    bottom: 50%;
+    left: 0;
+    width: 40px;
     text-align: center;
     font-size: 12px;
     color: #fff;
-    background-color: rgba(0, 0, 0, 0.7); /* Fondo para legibilidad */
+    background-color: rgba(0, 0, 0, 0.7);
     border-radius: 3px;
     padding: 2px 0;
     pointer-events: none;
     z-index: 2;
-    transform: translate(-50%, 50%); /* Centrar horizontal y verticalmente respecto al thumb */
+    transform: translate(-50%, 50%);
 }
 
 footer {

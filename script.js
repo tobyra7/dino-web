@@ -126,20 +126,39 @@ document.addEventListener("DOMContentLoaded", () => {
     startButton.addEventListener("click", startGame);
     resetSlidersButton.addEventListener("click", resetSliders);
 
-    // Permitir iniciar con barra espaciadora o toque en el canvas
+    // Permitir iniciar y saltar con barra espaciadora
     document.addEventListener("keydown", function(event) {
         if (event.code === "Space" && !gameStarted && !gameOver) {
             startGame();
+        } else if (event.code === "Space" && gameStarted && !gameOver) {
+            handleJump();
         }
     });
 
+    // Permitir iniciar y saltar con toque en el canvas
     canvas.addEventListener("touchstart", function(event) {
         if (!gameStarted && !gameOver) {
             event.preventDefault();
             startGame();
+        } else if (gameStarted && !gameOver) {
+            event.preventDefault();
+            handleJump();
         }
     });
 });
+
+// Función separada para manejar el salto
+function handleJump() {
+    if (dino.jumps < dino.maxJumps) {
+        dino.dy = dino.jumpPower;
+        dino.grounded = false;
+        dino.jumps++;
+        console.log("Saltos actuales:", dino.jumps); // Depuración
+        if (backgroundMusic.paused) {
+            backgroundMusic.play().catch(error => console.log("Error al reproducir música con salto:", error));
+        }
+    }
+}
 
 // Generar obstáculos aleatorios
 let nextObstacleTime = 0;
@@ -198,7 +217,8 @@ function updateDino() {
         dino.y = 340 - dino.height;
         dino.dy = 0;
         dino.grounded = true;
-        dino.jumps = 0;
+        dino.jumps = 0; // Reinicia los saltos al tocar el suelo
+        console.log("Tocado el suelo, saltos reiniciados a:", dino.jumps); // Depuración
     }
 }
 
@@ -313,34 +333,6 @@ function drawGround() {
     ctx.lineTo(canvas.width, 340);
     ctx.stroke();
 }
-
-// Escuchar la tecla para saltar o iniciar
-document.addEventListener("keydown", function(event) {
-    if (event.code === "Space" && !gameStarted && !gameOver) {
-        startGame();
-    } else if (event.code === "Space" && dino.jumps < dino.maxJumps && gameStarted) {
-        dino.dy = dino.jumpPower;
-        dino.grounded = false;
-        dino.jumps++;
-        backgroundMusic.play().catch(error => console.log("Error al reproducir música con tecla:", error));
-    }
-});
-
-// Escuchar el toque en la pantalla para saltar o iniciar
-canvas.addEventListener("touchstart", function(event) {
-    if (!gameStarted && !gameOver) {
-        event.preventDefault();
-        startGame();
-    } else if (gameStarted) {
-        event.preventDefault();
-        if (dino.jumps < dino.maxJumps) {
-            dino.dy = dino.jumpPower;
-            dino.grounded = false;
-            dino.jumps++;
-            backgroundMusic.play().catch(error => console.log("Error al reproducir música con toque:", error));
-        }
-    }
-});
 
 // Iniciar el juego
 function startGame() {
