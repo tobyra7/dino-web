@@ -20,6 +20,10 @@ body {
 h1 {
     text-align: center;
     color: #333;
+    font:bold;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #3c9a4a52; /* Gris claro */
     margin: 0 0 20px 0;
 }
 
@@ -51,20 +55,16 @@ h1 {
 #startButton:hover, #restartButton:hover, #resetSliders:hover {
     background-color: #45a049;
 }
-
-#resetSliders {
-    padding: 5px 10px;
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
 .controls {
     margin-top: 20px;
     display: flex;
     flex-direction: column;
     position: relative;
+    width: 800px; /* Igual al ancho del canvas */
+    background-color: #f5f5f5; /* Gris claro */
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .slider-container {
@@ -73,7 +73,28 @@ h1 {
     gap: 8px;
     width: 100%;
     max-width: 600px;
-    align-items: flex-start;
+    align-items: flex-start; /* Mantener alineación a la izquierda */
+}
+
+#resetSliders {
+    padding: 5px 10px;
+    position: absolute;
+    top: 50%;
+    left: 450px; /* Inicio del espacio a la derecha del slider-container */
+    right: 0; /* Hasta el borde derecho del contenedor .controls */
+    transform: translateY(-50%);
+    margin: 0 auto; /* Centra horizontalmente dentro del espacio definido */
+    width: fit-content; /* Asegura que el botón no se estire */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#resetSliders:hover {
+    background-color: #45a049;
 }
 
 .control-row {
