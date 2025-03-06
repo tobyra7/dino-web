@@ -54,20 +54,31 @@ h1 {
 
 #resetSliders {
     padding: 5px 10px;
-    margin-left: 10px;
-    vertical-align: middle; /* Alineación vertical con los sliders */
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .controls {
     margin-top: 20px;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+.slider-container {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
+    width: 100%;
+    max-width: 600px;
+    align-items: flex-start;
 }
 
 .control-row {
     display: flex;
-    align-items: center; /* Asegura que todos los elementos estén alineados verticalmente */
+    align-items: center;
     gap: 10px;
     position: relative;
 }

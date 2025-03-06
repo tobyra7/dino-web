@@ -13,8 +13,8 @@ let dino = {
     width: 70,
     height: 70,
     dy: 0,
-    gravity: 0.5,
-    jumpPower: -12,
+    gravity: 0.5, // Valor por defecto restaurado a 0.5g
+    jumpPower: -12, // Valor original del salto
     grounded: true,
     jumps: 0,
     maxJumps: 3
@@ -39,7 +39,7 @@ const frequencySlider = document.getElementById("frequencySlider");
 const treeSizeSlider = document.getElementById("treeSizeSlider");
 
 // Valores por defecto de los sliders
-const defaultGravity = 1;
+const defaultGravity = 1; // Valor del slider que da 0.5g (1 * 0.5)
 const defaultFrequency = 300;
 const defaultTreeSize = 1;
 
@@ -66,8 +66,8 @@ function updateSliderValue(slider, valueElement, unit) {
     const min = parseFloat(slider.min);
     const max = parseFloat(slider.max);
     const percentage = (value - min) / (max - min);
-    const displayValue = unit === "s" ? (value / 1000).toFixed(1) : value;
-    valueElement.textContent = `${displayValue}${unit}`;
+    const displayValue = unit === "g" ? (value * 0.5).toFixed(1) : unit === "s" ? (value / 1000).toFixed(1) : value; // Ajuste para gravedad
+    valueElement.textContent = `${displayValue}${unit === "g" ? "g" : unit}`;
 
     // Obtener el contenedor .control-row padre
     const controlRow = slider.parentNode;
@@ -93,7 +93,7 @@ function resetSliders() {
     frequencySlider.value = defaultFrequency;
     treeSizeSlider.value = defaultTreeSize;
 
-    dino.gravity = parseFloat(gravitySlider.value) * 0.5;
+    dino.gravity = parseFloat(gravitySlider.value) * 0.5; // Restaurar factor de 0.5
     minObstacleFrequency = parseInt(frequencySlider.value);
     treeSizeMultiplier = parseFloat(treeSizeSlider.value);
 
@@ -153,7 +153,7 @@ function handleJump() {
         dino.dy = dino.jumpPower;
         dino.grounded = false;
         dino.jumps++;
-        console.log("Saltos actuales:", dino.jumps); // Depuración
+        console.log("Saltos actuales:", dino.jumps);
         if (backgroundMusic.paused) {
             backgroundMusic.play().catch(error => console.log("Error al reproducir música con salto:", error));
         }
@@ -210,15 +210,15 @@ function drawDino() {
 // Actualizar la posición del dinosaurio
 function updateDino() {
     if (!dino.grounded) {
-        dino.dy += dino.gravity;
+        dino.dy += dino.gravity; // Restaurar sin factor adicional
         dino.y += dino.dy;
     }
     if (dino.y >= 340 - dino.height) {
         dino.y = 340 - dino.height;
         dino.dy = 0;
         dino.grounded = true;
-        dino.jumps = 0; // Reinicia los saltos al tocar el suelo
-        console.log("Tocado el suelo, saltos reiniciados a:", dino.jumps); // Depuración
+        dino.jumps = 0;
+        console.log("Tocado el suelo, saltos reiniciados a:", dino.jumps);
     }
 }
 
