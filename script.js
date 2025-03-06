@@ -6,6 +6,22 @@ const ctx = canvas.getContext("2d");
 const backgroundMusic = document.getElementById("backgroundMusic");
 const crashSound = document.getElementById("crashSound");
 
+// Forzar interacción inicial para desbloquear audio en navegadores
+document.addEventListener("DOMContentLoaded", () => {
+    canvas.addEventListener("click", unlockAudio, { once: true });
+    canvas.addEventListener("touchstart", unlockAudio, { once: true });
+});
+
+function unlockAudio() {
+    backgroundMusic.play().then(() => {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+        console.log("Audio desbloqueado con éxito");
+    }).catch(error => {
+        console.error("Error al desbloquear audio:", error);
+    });
+}
+
 // Propiedades del dinosaurio
 let dino = {
     x: 50,
@@ -13,7 +29,7 @@ let dino = {
     width: 70,
     height: 70,
     dy: 0,
-    gravity: 0.5, // Valor por defecto restaurado a 0.5g
+    gravity: 0.5, // Mantiene la sensación actual
     jumpPower: -12, // Valor original del salto
     grounded: true,
     jumps: 0,
@@ -39,7 +55,7 @@ const frequencySlider = document.getElementById("frequencySlider");
 const treeSizeSlider = document.getElementById("treeSizeSlider");
 
 // Valores por defecto de los sliders
-const defaultGravity = 1; // Valor del slider que da 0.5g (1 * 0.5)
+const defaultGravity = 2; // Valor del slider que da 0.5g (2 * 0.25)
 const defaultFrequency = 300;
 const defaultTreeSize = 1;
 
@@ -66,7 +82,7 @@ function updateSliderValue(slider, valueElement, unit) {
     const min = parseFloat(slider.min);
     const max = parseFloat(slider.max);
     const percentage = (value - min) / (max - min);
-    const displayValue = unit === "g" ? (value * 0.5).toFixed(1) : unit === "s" ? (value / 1000).toFixed(1) : value; // Ajuste para gravedad
+    const displayValue = unit === "g" ? (value * 0.5).toFixed(1) : unit === "s" ? (value / 1000).toFixed(1) : value; // Ajuste para mostrar 1g en value="2"
     valueElement.textContent = `${displayValue}${unit === "g" ? "g" : unit}`;
 
     // Obtener el contenedor .control-row padre
@@ -93,7 +109,7 @@ function resetSliders() {
     frequencySlider.value = defaultFrequency;
     treeSizeSlider.value = defaultTreeSize;
 
-    dino.gravity = parseFloat(gravitySlider.value) * 0.5; // Restaurar factor de 0.5
+    dino.gravity = parseFloat(gravitySlider.value) * 0.25; // Ajustado para que 2 * 0.25 = 0.5g
     minObstacleFrequency = parseInt(frequencySlider.value);
     treeSizeMultiplier = parseFloat(treeSizeSlider.value);
 
@@ -109,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSliderValue(treeSizeSlider, treeSizeValue, "x");
 
     gravitySlider.addEventListener("input", () => {
-        dino.gravity = parseFloat(gravitySlider.value) * 0.5;
+        dino.gravity = parseFloat(gravitySlider.value) * 0.25;
         updateSliderValue(gravitySlider, gravityValue, "g");
     });
 
@@ -155,7 +171,11 @@ function handleJump() {
         dino.jumps++;
         console.log("Saltos actuales:", dino.jumps);
         if (backgroundMusic.paused) {
-            backgroundMusic.play().catch(error => console.log("Error al reproducir música con salto:", error));
+            backgroundMusic.play().then(() => {
+                console.log("Música de fondo reproducida");
+            }).catch(error => {
+                console.error("Error al reproducir música:", error);
+            });
         }
     }
 }
@@ -210,7 +230,7 @@ function drawDino() {
 // Actualizar la posición del dinosaurio
 function updateDino() {
     if (!dino.grounded) {
-        dino.dy += dino.gravity; // Restaurar sin factor adicional
+        dino.dy += dino.gravity;
         dino.y += dino.dy;
     }
     if (dino.y >= 340 - dino.height) {
@@ -298,7 +318,11 @@ function checkCollision() {
             restartButton.style.display = "block";
             gameOver = true;
             backgroundMusic.pause();
-            crashSound.play().catch(error => console.log("Error al reproducir choque:", error));
+            crashSound.play().then(() => {
+                console.log("Sonido de choque reproducido");
+            }).catch(error => {
+                console.error("Error al reproducir sonido de choque:", error);
+            });
             return true;
         }
         if (
@@ -309,7 +333,11 @@ function checkCollision() {
             restartButton.style.display = "block";
             gameOver = true;
             backgroundMusic.pause();
-            crashSound.play().catch(error => console.log("Error al reproducir choque:", error));
+            crashSound.play().then(() => {
+                console.log("Sonido de choque reproducido");
+            }).catch(error => {
+                console.error("Error al reproducir sonido de choque:", error);
+            });
             return true;
         }
     }
@@ -338,7 +366,11 @@ function drawGround() {
 function startGame() {
     startButton.style.display = "none";
     gameStarted = true;
-    backgroundMusic.play().catch(error => console.log("Error al reproducir música al iniciar:", error));
+    backgroundMusic.play().then(() => {
+        console.log("Música de fondo reproducida al iniciar");
+    }).catch(error => {
+        console.error("Error al reproducir música al iniciar:", error);
+    });
     gameLoop();
 }
 
@@ -354,7 +386,11 @@ function restartGame() {
     nextObstacleTime = 0;
     restartButton.style.display = "none";
     backgroundMusic.currentTime = 0;
-    backgroundMusic.play().catch(error => console.log("Error al reproducir música al reiniciar:", error));
+    backgroundMusic.play().then(() => {
+        console.log("Música de fondo reproducida al reiniciar");
+    }).catch(error => {
+        console.error("Error al reproducir música al reiniciar:", error);
+    });
     gameLoop();
 }
 
