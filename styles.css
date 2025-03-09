@@ -15,15 +15,16 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative; /* Asegurar que los botones absolutos se posicionen dentro */
 }
 
 h1 {
     text-align: center;
     color: #333;
-    font:bold;
+    font: bold;
     padding: 5px;
     border-radius: 5px;
-    background-color: #3c9a4a52; /* Gris claro */
+    background-color: #3c9a4a52;
     margin: 0 0 20px 0;
 }
 
@@ -31,7 +32,7 @@ h1 {
     display: block;
 }
 
-#startButton, #restartButton, #resetSliders {
+#startButton, #restartButton, #resetSliders, #jumpButton {
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -52,16 +53,33 @@ h1 {
     display: none;
 }
 
-#startButton:hover, #restartButton:hover, #resetSliders:hover {
+#jumpButton {
+    display: none;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 100px;
+    height: 60px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#startButton:hover, #restartButton:hover, #resetSliders:hover, #jumpButton:hover, #jumpButton:active {
     background-color: #45a049;
 }
+
 .controls {
     margin-top: 20px;
     display: flex;
     flex-direction: column;
     position: relative;
-    width: 800px; /* Igual al ancho del canvas */
-    background-color: #f5f5f5; /* Gris claro */
+    width: 800px;
+    background-color: #f5f5f5;
     padding: 15px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -73,18 +91,18 @@ h1 {
     gap: 8px;
     width: 100%;
     max-width: 600px;
-    align-items: flex-start; /* Mantener alineación a la izquierda */
+    align-items: flex-start;
 }
 
 #resetSliders {
     padding: 5px 10px;
     position: absolute;
     top: 50%;
-    left: 450px; /* Inicio del espacio a la derecha del slider-container */
-    right: 0; /* Hasta el borde derecho del contenedor .controls */
+    left: 450px;
+    right: 0;
     transform: translateY(-50%);
-    margin: 0 auto; /* Centra horizontalmente dentro del espacio definido */
-    width: fit-content; /* Asegura que el botón no se estire */
+    margin: 0 auto;
+    width: fit-content;
     background-color: #4CAF50;
     color: white;
     border: none;

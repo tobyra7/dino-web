@@ -6,6 +6,9 @@ const ctx = canvas.getContext("2d");
 const backgroundMusic = document.getElementById("backgroundMusic");
 const crashSound = document.getElementById("crashSound");
 
+// Obtener el botón de salto
+const jumpButton = document.getElementById("jumpButton");
+
 // Forzar interacción inicial para desbloquear audio en navegadores
 document.addEventListener("DOMContentLoaded", () => {
     canvas.addEventListener("click", unlockAudio, { once: true });
@@ -29,8 +32,8 @@ let dino = {
     width: 70,
     height: 70,
     dy: 0,
-    gravity: 0.5, // Mantiene la sensación actual
-    jumpPower: -12, // Valor original del salto
+    gravity: 0.5,
+    jumpPower: -12,
     grounded: true,
     jumps: 0,
     maxJumps: 3
@@ -55,7 +58,7 @@ const frequencySlider = document.getElementById("frequencySlider");
 const treeSizeSlider = document.getElementById("treeSizeSlider");
 
 // Valores por defecto de los sliders
-const defaultGravity = 2; // Valor del slider que da 0.5g (2 * 0.25)
+const defaultGravity = 2;
 const defaultFrequency = 300;
 const defaultTreeSize = 1;
 
@@ -82,25 +85,18 @@ function updateSliderValue(slider, valueElement, unit) {
     const min = parseFloat(slider.min);
     const max = parseFloat(slider.max);
     const percentage = (value - min) / (max - min);
-    const displayValue = unit === "g" ? (value * 0.5).toFixed(1) : unit === "s" ? (value / 1000).toFixed(1) : value; // Ajuste para mostrar 1g en value="2"
+    const displayValue = unit === "g" ? (value * 0.5).toFixed(1) : unit === "s" ? (value / 1000).toFixed(1) : value;
     valueElement.textContent = `${displayValue}${unit === "g" ? "g" : unit}`;
 
-    // Obtener el contenedor .control-row padre
     const controlRow = slider.parentNode;
     const sliderRect = slider.getBoundingClientRect();
     const controlRowRect = controlRow.getBoundingClientRect();
-
-    // Calcular el offset del slider respecto al contenedor .control-row
     const sliderOffsetLeft = sliderRect.left - controlRowRect.left;
-
-    // Calcular la posición del thumb como porcentaje del ancho del slider
     const sliderWidth = slider.offsetWidth;
-    const thumbWidth = 40; // Ancho del thumb en CSS
+    const thumbWidth = 40;
     const thumbPosition = percentage * (sliderWidth - thumbWidth) + (thumbWidth / 2);
-
-    // Posición absoluta del label respecto al contenedor, centrada sobre el thumb
     const absolutePosition = sliderOffsetLeft + thumbPosition;
-    valueElement.style.left = `${absolutePosition}px`; // Posición absoluta dentro de .control-row
+    valueElement.style.left = `${absolutePosition}px`;
 }
 
 // Función para reiniciar sliders a valores por defecto
@@ -109,7 +105,7 @@ function resetSliders() {
     frequencySlider.value = defaultFrequency;
     treeSizeSlider.value = defaultTreeSize;
 
-    dino.gravity = parseFloat(gravitySlider.value) * 0.25; // Ajustado para que 2 * 0.25 = 0.5g
+    dino.gravity = parseFloat(gravitySlider.value) * 0.25;
     minObstacleFrequency = parseInt(frequencySlider.value);
     treeSizeMultiplier = parseFloat(treeSizeSlider.value);
 
@@ -142,7 +138,20 @@ document.addEventListener("DOMContentLoaded", () => {
     startButton.addEventListener("click", startGame);
     resetSlidersButton.addEventListener("click", resetSliders);
 
-    // Permitir iniciar y saltar con barra espaciadora
+    jumpButton.addEventListener("touchstart", (event) => {
+        event.preventDefault();
+        if (gameStarted && !gameOver) {
+            handleJump();
+        }
+    });
+
+    jumpButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (gameStarted && !gameOver) {
+            handleJump();
+        }
+    });
+
     document.addEventListener("keydown", function(event) {
         if (event.code === "Space" && !gameStarted && !gameOver) {
             startGame();
@@ -151,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Permitir iniciar y saltar con toque en el canvas
     canvas.addEventListener("touchstart", function(event) {
         if (!gameStarted && !gameOver) {
             event.preventDefault();
@@ -316,6 +324,7 @@ function checkCollision() {
             dino.y < obstacle.y + obstacle.canopySize
         ) {
             restartButton.style.display = "block";
+            jumpButton.style.display = "none";
             gameOver = true;
             backgroundMusic.pause();
             crashSound.play().then(() => {
@@ -331,6 +340,7 @@ function checkCollision() {
             dino.y + dino.height > obstacle.y + obstacle.canopySize
         ) {
             restartButton.style.display = "block";
+            jumpButton.style.display = "none";
             gameOver = true;
             backgroundMusic.pause();
             crashSound.play().then(() => {
@@ -365,6 +375,7 @@ function drawGround() {
 // Iniciar el juego
 function startGame() {
     startButton.style.display = "none";
+    jumpButton.style.display = "block";
     gameStarted = true;
     backgroundMusic.play().then(() => {
         console.log("Música de fondo reproducida al iniciar");
@@ -385,6 +396,7 @@ function restartGame() {
     gameOver = false;
     nextObstacleTime = 0;
     restartButton.style.display = "none";
+    jumpButton.style.display = "block";
     backgroundMusic.currentTime = 0;
     backgroundMusic.play().then(() => {
         console.log("Música de fondo reproducida al reiniciar");
