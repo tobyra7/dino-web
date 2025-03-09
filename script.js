@@ -28,6 +28,9 @@ function unlockAudio() {
             return audio.play().then(() => {
                 audio.pause();
                 audio.currentTime = 0;
+                if (audio === backgroundMusic) {
+                    backgroundMusic.volume = 0.3; // Baja el volumen al 30%
+                }
                 console.log(`Audio ${audio.id} desbloqueado con éxito`);
                 return true;
             }).catch(error => {
