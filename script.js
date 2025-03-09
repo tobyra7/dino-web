@@ -1,3 +1,8 @@
+// Función para formatear números con separador de miles
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 // Obtener el canvas y el contexto
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -47,7 +52,7 @@ let clouds = [
 ];
 let score = 0;
 let highScore = localStorage.getItem("highScore") ? parseInt(localStorage.getItem("highScore")) : 0;
-console.log("HighScore inicial:", highScore); // Depuración
+console.log("HighScore inicial:", highScore);
 let gameOver = false;
 let gameStarted = false;
 let isSpacePressed = false;
@@ -383,11 +388,11 @@ function drawScore() {
     ctx.fillStyle = "black";
     ctx.font = "20px Arial";
     ctx.textAlign = "right";
-    ctx.fillText("Puntaje: " + score, canvas.width - 10, 30);
+    ctx.fillText("Score: " + formatNumber(score), canvas.width - 10, 30);
     ctx.fillStyle = "white";
     ctx.fillRect(canvas.width - 100, 40, 90, 25);
     ctx.fillStyle = "black";
-    ctx.fillText("Mejor: " + highScore, canvas.width - 10, 60);
+    ctx.fillText("HighScore: " + formatNumber(highScore), canvas.width - 10, 60);
 }
 
 // Dibujar el suelo
