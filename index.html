@@ -19,30 +19,49 @@
         <audio id="jump2Sound" src="jump2.wav"></audio>
         <audio id="jump3Sound" src="jump3.wav"></audio>
         <div class="controls">
-            <div class="slider-container">
-                <div class="control-row">
-                    <label>Gravedad:</label>
-                    <span class="min-value">0.2g</span>
-                    <input type="range" id="gravitySlider" min="0" max="4" step="0.1" value="2">
-                    <span class="max-value">2g</span>
+            <div class="settings-container">
+                <div class="slider-container">
+                    <div class="control-row">
+                        <label>Gravedad:</label>
+                        <span class="min-value">0.2g</span>
+                        <input type="range" id="gravitySlider" min="0" max="4" step="0.1" value="2">
+                        <span class="max-value">2g</span>
+                    </div>
+                    <div class="control-row">
+                        <label>Tiempo min entre árboles:</label>
+                        <span class="min-value">0.3s</span>
+                        <input type="range" id="frequencySlider" min="300" max="2000" step="100" value="300">
+                        <span class="max-value">2s</span>
+                    </div>
+                    <div class="control-row">
+                        <label>Tamaño árboles:</label>
+                        <span class="min-value">1x</span>
+                        <input type="range" id="treeSizeSlider" min="1" max="5" step="0.1" value="1">
+                        <span class="max-value">5x</span>
+                    </div>
+                    <button id="resetSliders">Reiniciar dificultad</button>
                 </div>
-                <div class="control-row">
-                    <label>Tiempo min entre árboles:</label>
-                    <span class="min-value">0.3s</span>
-                    <input type="range" id="frequencySlider" min="300" max="2000" step="100" value="300">
-                    <span class="max-value">2s</span>
-                </div>
-                <div class="control-row">
-                    <label>Tamaño árboles:</label>
-                    <span class="min-value">1x</span>
-                    <input type="range" id="treeSizeSlider" min="1" max="5" step="0.1" value="1">
-                    <span class="max-value">5x</span>
+                <div class="config-section">
+                    <h2>Sound configs</h2>
+                    <div class="control-row">
+                        <label for="musicToggle">Música:</label>
+                        <label class="switch">
+                            <input type="checkbox" id="musicToggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="control-row">
+                        <label for="effectsToggle">Efectos:</label>
+                        <label class="switch">
+                            <input type="checkbox" id="effectsToggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
-            <button id="resetSliders">Reiniciar dificultad</button>
         </div>
     </div>
-    <footer>Designed by TobyRa - El Dino hasta 3 veces tocar el suelo - V1.30</footer>
+    <footer>Designed by TobyRa - El Dino hasta 3 veces tocar el suelo - V1.54</footer>
     <script src="script.js"></script>
 </body>
 </html>

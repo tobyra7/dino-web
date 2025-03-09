@@ -20,6 +20,14 @@ const jumpButton = document.getElementById("jumpButton");
 // Variable para rastrear si el audio está desbloqueado
 let audioUnlocked = false;
 
+// Variables para controlar los estados de los sonidos
+let musicEnabled = true;
+let effectsEnabled = true;
+
+// Obtener los nuevos interruptores
+const musicToggle = document.getElementById("musicToggle");
+const effectsToggle = document.getElementById("effectsToggle");
+
 // Función para desbloquear el audio
 function unlockAudio() {
     if (!audioUnlocked) {
@@ -28,9 +36,6 @@ function unlockAudio() {
             return audio.play().then(() => {
                 audio.pause();
                 audio.currentTime = 0;
-                if (audio === backgroundMusic) {
-                    backgroundMusic.volume = 0.3; // Baja el volumen al 30%
-                }
                 console.log(`Audio ${audio.id} desbloqueado con éxito`);
                 return true;
             }).catch(error => {
@@ -43,8 +48,8 @@ function unlockAudio() {
             if (results.every(result => result)) {
                 audioUnlocked = true;
                 console.log("Todos los audios desbloqueados correctamente");
-                // Intentar reproducir la música de fondo inmediatamente después de desbloquear
-                if (gameStarted) {
+                // Reproducir música si está habilitada
+                if (gameStarted && musicEnabled) {
                     backgroundMusic.play().catch(error => {
                         console.error("Error al reproducir música después de desbloquear:", error);
                     });
@@ -171,6 +176,29 @@ document.addEventListener("DOMContentLoaded", () => {
         updateSliderValue(treeSizeSlider, treeSizeValue, "x");
     });
 
+    // Controlar la música
+    musicToggle.addEventListener("change", (e) => {
+        musicEnabled = musicToggle.checked;
+        if (!musicEnabled) {
+            backgroundMusic.pause();
+        } else if (audioUnlocked && gameStarted) {
+            backgroundMusic.play().catch(error => {
+                console.error("Error al reproducir música al activar:", error);
+            });
+        }
+        console.log("Música habilitada:", musicEnabled);
+        e.stopPropagation(); // Evita que el evento se propague a otros elementos
+        musicToggle.blur(); // Quitar el focus del interruptor
+    });
+
+    // Controlar los efectos
+    effectsToggle.addEventListener("change", (e) => {
+        effectsEnabled = effectsToggle.checked;
+        console.log("Efectos habilitados:", effectsEnabled);
+        e.stopPropagation(); // Evita que el evento se propague a otros elementos
+        effectsToggle.blur(); // Quitar el focus del interruptor
+    });
+
     startButton.addEventListener("click", () => {
         unlockAudio(); // Desbloquear el audio al hacer clic en "Jugar"
         startGame();
@@ -231,7 +259,7 @@ function handleJump() {
         dino.jumps++;
         console.log("Saltos actuales:", dino.jumps);
 
-        // Reproducir el sonido correspondiente según el número de saltos
+        // Reproducir el sonido solo si los efectos están habilitados
         let jumpSound;
         if (dino.jumps === 1) {
             jumpSound = jump1Sound;
@@ -241,14 +269,15 @@ function handleJump() {
             jumpSound = jump3Sound;
         }
 
-        if (jumpSound && audioUnlocked) {
+        if (jumpSound && audioUnlocked && effectsEnabled) {
             jumpSound.currentTime = 0; // Reiniciar el sonido
             jumpSound.play().catch(error => {
                 console.error(`Error al reproducir sonido de salto ${dino.jumps}:`, error);
             });
         }
 
-        if (backgroundMusic.paused && audioUnlocked) {
+        // Reproducir música si está habilitada y pausada
+        if (backgroundMusic.paused && audioUnlocked && musicEnabled) {
             backgroundMusic.play().catch(error => {
                 console.error("Error al reproducir música:", error);
             });
@@ -428,7 +457,7 @@ function checkCollision() {
             restartButton.style.display = "block";
             jumpButton.style.display = "none";
             gameOver = true;
-            if (audioUnlocked) {
+            if (audioUnlocked && effectsEnabled) {
                 backgroundMusic.pause();
                 crashSound.currentTime = 0;
                 crashSound.play().then(() => {
@@ -452,7 +481,7 @@ function checkCollision() {
             restartButton.style.display = "block";
             jumpButton.style.display = "none";
             gameOver = true;
-            if (audioUnlocked) {
+            if (audioUnlocked && effectsEnabled) {
                 backgroundMusic.pause();
                 crashSound.currentTime = 0;
                 crashSound.play().then(() => {
@@ -494,7 +523,7 @@ function startGame() {
     startButton.style.display = "none";
     jumpButton.style.display = "block";
     gameStarted = true;
-    if (audioUnlocked) {
+    if (audioUnlocked && musicEnabled) {
         backgroundMusic.currentTime = 0;
         backgroundMusic.play().catch(error => {
             console.error("Error al reproducir música al iniciar:", error);
@@ -515,7 +544,7 @@ function restartGame() {
     nextObstacleTime = 0;
     restartButton.style.display = "none";
     jumpButton.style.display = "block";
-    if (audioUnlocked) {
+    if (audioUnlocked && musicEnabled) {
         backgroundMusic.currentTime = 0;
         backgroundMusic.play().catch(error => {
             console.error("Error al reproducir música al reiniciar:", error);

@@ -98,6 +98,12 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.settings-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px; /* Reducido de 20px a 10px para acercar los sliders a las configuraciones */
+}
+
 .slider-container {
     display: flex;
     flex-direction: column;
@@ -105,16 +111,28 @@ h1 {
     width: 100%;
     max-width: 600px;
     align-items: flex-start;
+    border-right: 2px solid #333; /* Línea vertical que separa sliders de configuraciones */
+    padding-right: 10px; /* Reducido de 15px a 10px para acercar los sliders */
+}
+
+.config-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 200px; /* Limitamos el ancho de la sección de configuraciones */
+}
+
+.config-section h2 {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
 #resetSliders {
     padding: 5px 10px;
-    position: absolute;
-    top: 50%;
-    left: 450px;
-    right: 0;
-    transform: translateY(-50%);
-    margin: 0 auto;
+    margin-top: 10px; /* Espacio arriba del botón */
     width: fit-content;
     background-color: #4CAF50;
     color: white;
@@ -131,7 +149,7 @@ h1 {
 .control-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 5px; /* Reducido de 10px a 5px para acercar los sliders a las etiquetas */
     position: relative;
 }
 
@@ -198,6 +216,73 @@ h1 {
     pointer-events: none;
     z-index: 2;
     transform: translate(-50%, 50%);
+}
+
+/* Estilo para los interruptores ON/OFF */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+/* Texto "ON" y "OFF" dentro del interruptor */
+.slider:after {
+    position: absolute;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+input:checked + .slider:after {
+    content: "ON";
+    left: 8px;
+}
+
+input:not(:checked) + .slider:after {
+    content: "OFF";
+    right: 8px;
+    color: #999;
+}
+
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
 }
 
 footer {
