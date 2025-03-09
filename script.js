@@ -10,24 +10,47 @@ const ctx = canvas.getContext("2d");
 // Obtener los elementos de audio
 const backgroundMusic = document.getElementById("backgroundMusic");
 const crashSound = document.getElementById("crashSound");
+const jump1Sound = document.getElementById("jump1Sound");
+const jump2Sound = document.getElementById("jump2Sound");
+const jump3Sound = document.getElementById("jump3Sound");
 
 // Obtener el botón de salto
 const jumpButton = document.getElementById("jumpButton");
 
-// Forzar interacción inicial para desbloquear audio en navegadores
-document.addEventListener("DOMContentLoaded", () => {
-    canvas.addEventListener("click", unlockAudio, { once: true });
-    canvas.addEventListener("touchstart", unlockAudio, { once: true });
-});
+// Variable para rastrear si el audio está desbloqueado
+let audioUnlocked = false;
 
+// Función para desbloquear el audio
 function unlockAudio() {
-    backgroundMusic.play().then(() => {
-        backgroundMusic.pause();
-        backgroundMusic.currentTime = 0;
-        console.log("Audio desbloqueado con éxito");
-    }).catch(error => {
-        console.error("Error al desbloquear audio:", error);
-    });
+    if (!audioUnlocked) {
+        const audios = [backgroundMusic, crashSound, jump1Sound, jump2Sound, jump3Sound];
+        const promises = audios.map(audio => {
+            return audio.play().then(() => {
+                audio.pause();
+                audio.currentTime = 0;
+                console.log(`Audio ${audio.id} desbloqueado con éxito`);
+                return true;
+            }).catch(error => {
+                console.error(`Error al desbloquear audio ${audio.id}:`, error);
+                return false;
+            });
+        });
+
+        Promise.all(promises).then(results => {
+            if (results.every(result => result)) {
+                audioUnlocked = true;
+                console.log("Todos los audios desbloqueados correctamente");
+                // Intentar reproducir la música de fondo inmediatamente después de desbloquear
+                if (gameStarted) {
+                    backgroundMusic.play().catch(error => {
+                        console.error("Error al reproducir música después de desbloquear:", error);
+                    });
+                }
+            } else {
+                console.log("No se pudieron desbloquear todos los audios");
+            }
+        });
+    }
 }
 
 // Propiedades del dinosaurio
@@ -41,7 +64,9 @@ let dino = {
     jumpPower: -12,
     grounded: true,
     jumps: 0,
-    maxJumps: 3
+    maxJumps: 3,
+    rotation: 0, // Ángulo de rotación en radianes
+    lastJumpTime: 0 // Tiempo del último salto para calcular el giro
 };
 
 // Array para almacenar obstáculos y nubes
@@ -143,7 +168,10 @@ document.addEventListener("DOMContentLoaded", () => {
         updateSliderValue(treeSizeSlider, treeSizeValue, "x");
     });
 
-    startButton.addEventListener("click", startGame);
+    startButton.addEventListener("click", () => {
+        unlockAudio(); // Desbloquear el audio al hacer clic en "Jugar"
+        startGame();
+    });
     resetSlidersButton.addEventListener("click", resetSliders);
 
     jumpButton.addEventListener("touchstart", (event) => {
@@ -166,6 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", function(event) {
         if (event.code === "Space" && !isSpacePressed) {
             if (!gameStarted && !gameOver) {
+                unlockAudio(); // Desbloquear el audio al presionar espacio para iniciar
                 startGame();
             } else if (gameStarted && !gameOver) {
                 handleJump();
@@ -183,6 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.addEventListener("touchstart", function(event) {
         event.preventDefault();
         if (!gameStarted && !gameOver) {
+            unlockAudio(); // Desbloquear el audio al tocar el canvas para iniciar
             startGame();
         } else if (gameStarted && !gameOver) {
             handleJump();
@@ -197,12 +227,32 @@ function handleJump() {
         dino.grounded = false;
         dino.jumps++;
         console.log("Saltos actuales:", dino.jumps);
-        if (backgroundMusic.paused) {
-            backgroundMusic.play().then(() => {
-                console.log("Música de fondo reproducida");
-            }).catch(error => {
+
+        // Reproducir el sonido correspondiente según el número de saltos
+        let jumpSound;
+        if (dino.jumps === 1) {
+            jumpSound = jump1Sound;
+        } else if (dino.jumps === 2) {
+            jumpSound = jump2Sound;
+        } else if (dino.jumps === 3) {
+            jumpSound = jump3Sound;
+        }
+
+        if (jumpSound && audioUnlocked) {
+            jumpSound.currentTime = 0; // Reiniciar el sonido
+            jumpSound.play().catch(error => {
+                console.error(`Error al reproducir sonido de salto ${dino.jumps}:`, error);
+            });
+        }
+
+        if (backgroundMusic.paused && audioUnlocked) {
+            backgroundMusic.play().catch(error => {
                 console.error("Error al reproducir música:", error);
             });
+        }
+
+        if (dino.jumps > 1) { // Iniciar el tiempo del salto solo para el segundo y tercer salto
+            dino.lastJumpTime = performance.now();
         }
     }
 }
@@ -232,8 +282,26 @@ function createObstacle() {
     obstacles.push(obstacle);
 }
 
-// Dibujar el dinosaurio (T-Rex inclinado)
+// Dibujar el dinosaurio (T-Rex inclinado con frontflip)
 function drawDino() {
+    ctx.save(); // Guardar el estado actual del canvas
+
+    // Calcular la rotación solo para el segundo y tercer salto
+    if (!dino.grounded && (dino.jumps === 2 || dino.jumps === 3) && dino.lastJumpTime > 0) {
+        const currentTime = performance.now();
+        const timeSinceJump = (currentTime - dino.lastJumpTime) / 400; // Ajustar 400 para controlar la velocidad del giro
+        dino.rotation = (timeSinceJump * 2 * Math.PI) % (2 * Math.PI); // Limitar a un solo giro de 360°
+        if (timeSinceJump > 1) dino.rotation = 2 * Math.PI; // Completar el giro después de 1 segundo
+    } else {
+        dino.rotation = 0; // Sin rotación en el primer salto o en el suelo
+    }
+
+    // Trasladar el origen al centro del dinosaurio para la rotación
+    ctx.translate(dino.x + dino.width / 2, dino.y + dino.height / 2);
+    ctx.rotate(dino.rotation);
+    ctx.translate(-dino.x - dino.width / 2, -dino.y - dino.height / 2);
+
+    // Dibujar el dinosaurio
     ctx.fillStyle = "green";
     ctx.beginPath();
     ctx.fillRect(dino.x + 20, dino.y + 40, 30, 10);
@@ -252,6 +320,13 @@ function drawDino() {
     ctx.fillRect(dino.x + 50, dino.y + 5, 5, 5);
     ctx.fillStyle = "black";
     ctx.fillRect(dino.x + 52, dino.y + 7, 2, 2);
+
+    ctx.restore(); // Restaurar el estado del canvas
+
+    // Resetear lastJumpTime cuando toca el suelo
+    if (dino.grounded) {
+        dino.lastJumpTime = 0;
+    }
 }
 
 // Actualizar la posición del dinosaurio
@@ -350,12 +425,15 @@ function checkCollision() {
             restartButton.style.display = "block";
             jumpButton.style.display = "none";
             gameOver = true;
-            backgroundMusic.pause();
-            crashSound.play().then(() => {
-                console.log("Sonido de choque reproducido");
-            }).catch(error => {
-                console.error("Error al reproducir sonido de choque:", error);
-            });
+            if (audioUnlocked) {
+                backgroundMusic.pause();
+                crashSound.currentTime = 0;
+                crashSound.play().then(() => {
+                    console.log("Sonido de choque reproducido");
+                }).catch(error => {
+                    console.error("Error al reproducir sonido de choque:", error);
+                });
+            }
             return true;
         }
         if (
@@ -371,12 +449,15 @@ function checkCollision() {
             restartButton.style.display = "block";
             jumpButton.style.display = "none";
             gameOver = true;
-            backgroundMusic.pause();
-            crashSound.play().then(() => {
-                console.log("Sonido de choque reproducido");
-            }).catch(error => {
-                console.error("Error al reproducir sonido de choque:", error);
-            });
+            if (audioUnlocked) {
+                backgroundMusic.pause();
+                crashSound.currentTime = 0;
+                crashSound.play().then(() => {
+                    console.log("Sonido de choque reproducido");
+                }).catch(error => {
+                    console.error("Error al reproducir sonido de choque:", error);
+                });
+            }
             return true;
         }
     }
@@ -410,11 +491,12 @@ function startGame() {
     startButton.style.display = "none";
     jumpButton.style.display = "block";
     gameStarted = true;
-    backgroundMusic.play().then(() => {
-        console.log("Música de fondo reproducida al iniciar");
-    }).catch(error => {
-        console.error("Error al reproducir música al iniciar:", error);
-    });
+    if (audioUnlocked) {
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play().catch(error => {
+            console.error("Error al reproducir música al iniciar:", error);
+        });
+    }
     gameLoop();
 }
 
@@ -430,17 +512,20 @@ function restartGame() {
     nextObstacleTime = 0;
     restartButton.style.display = "none";
     jumpButton.style.display = "block";
-    backgroundMusic.currentTime = 0;
-    backgroundMusic.play().then(() => {
-        console.log("Música de fondo reproducida al reiniciar");
-    }).catch(error => {
-        console.error("Error al reproducir música al reiniciar:", error);
-    });
+    if (audioUnlocked) {
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play().catch(error => {
+            console.error("Error al reproducir música al reiniciar:", error);
+        });
+    }
     gameLoop();
 }
 
 // Botón de reinicio
-restartButton.addEventListener("click", restartGame);
+restartButton.addEventListener("click", () => {
+    unlockAudio(); // Desbloquear el audio al reiniciar
+    restartGame();
+});
 
 // Bucle principal del juego
 function gameLoop(timestamp = 0) {

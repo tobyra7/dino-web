@@ -2,45 +2,47 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=900, user-scalable=no">
-    <link rel="icon" href="dino.png" type="image/x-icon">
-    <title>El Dino</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Dino Jump</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="game-container">
-        <h1>🦖 El Dino jumpeador 🦖</h1>
+        <h1>El Dino jump</h1>
         <canvas id="gameCanvas" width="800" height="400"></canvas>
-        <button id="startButton">Iniciar</button>
+        <button id="startButton">Jugar</button>
+        <button id="jumpButton">Saltar</button>
         <button id="restartButton">Jugar de nuevo</button>
+        <audio id="backgroundMusic" src="background-music.mp3" loop></audio>
+        <audio id="crashSound" src="crash-sound.ogg"></audio>
+        <audio id="jump1Sound" src="jump1.wav"></audio>
+        <audio id="jump2Sound" src="jump2.wav"></audio>
+        <audio id="jump3Sound" src="jump3.wav"></audio>
         <div class="controls">
             <div class="slider-container">
                 <div class="control-row">
-                    <label for="gravitySlider">Gravedad:</label>
+                    <label>Gravedad:</label>
                     <span class="min-value">0.2g</span>
-                    <input type="range" id="gravitySlider" name="gravity" min="0.4" max="4" value="2" step="0.1">
+                    <input type="range" id="gravitySlider" min="0" max="4" step="0.1" value="2">
                     <span class="max-value">2g</span>
                 </div>
                 <div class="control-row">
-                    <label for="frequencySlider">Tiempo min entre árboles:</label>
-                    <span class="min-value">0s</span>
-                    <input type="range" id="frequencySlider" name="frequency" min="0" max="3000" value="300">
-                    <span class="max-value">3s</span>
+                    <label>Tiempo min entre árboles:</label>
+                    <span class="min-value">0.3s</span>
+                    <input type="range" id="frequencySlider" min="300" max="2000" step="100" value="300">
+                    <span class="max-value">2s</span>
                 </div>
                 <div class="control-row">
-                    <label for="treeSizeSlider">Tamaño árboles:</label>
+                    <label>Tamaño árboles:</label>
                     <span class="min-value">1x</span>
-                    <input type="range" id="treeSizeSlider" name="treeSize" min="1" max="5" value="1" step="0.1">
+                    <input type="range" id="treeSizeSlider" min="1" max="5" step="0.1" value="1">
                     <span class="max-value">5x</span>
                 </div>
             </div>
             <button id="resetSliders">Reiniciar dificultad</button>
         </div>
     </div>
-    <footer>Designed by Tobyra - El dino salta hasta 3 veces sin tocar el suelo ;) - v1.28</footer>
-    <button id="jumpButton">Saltar</button>
-    <audio id="backgroundMusic" src="background-music.mp3" loop></audio>
-    <audio id="crashSound" src="crash-sound.ogg"></audio>
+    <footer>Designed by TobyRa - El Dino hasta 3 veces tocar el suelo - V1</footer>
     <script src="script.js"></script>
 </body>
 </html>
