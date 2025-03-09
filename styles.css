@@ -7,6 +7,7 @@ body {
     min-height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
+    position: relative; /* Para posicionar el jumpButton absolutamente */
 }
 
 .game-container {
@@ -15,7 +16,6 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: relative; /* Asegurar que los botones absolutos se posicionen dentro */
 }
 
 h1 {
@@ -55,21 +55,29 @@ h1 {
 
 #jumpButton {
     display: none;
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 100px;
-    height: 60px;
+    position: fixed; /* Cambiado a fixed para que esté relativo a la ventana */
+    bottom: 20px;
+    right: 20px;
+    width: 120px; /* Tamaño más grande */
+    height: 70px;
     background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 20px;
+    border-radius: 15px; /* Bordes más redondeados */
+    font-size: 24px; /* Texto más grande */
+    font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Transiciones suaves */
 }
 
-#startButton:hover, #restartButton:hover, #resetSliders:hover, #jumpButton:hover, #jumpButton:active {
+#jumpButton:hover,
+#jumpButton:active {
+    background-color: #45a049;
+    transform: scale(0.95); /* Efecto de "presionar" al tocar */
+}
+
+#startButton:hover, #restartButton:hover, #resetSliders:hover {
     background-color: #45a049;
 }
 

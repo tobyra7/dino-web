@@ -46,8 +46,10 @@ let clouds = [
     { x: 800, y: 80, speed: 0.5, parts: [{w: 50, h: 25}, {w: 30, h: 20, offsetX: 30, offsetY: -15}, {w: 20, h: 15, offsetX: 20, offsetY: 10}] }
 ];
 let score = 0;
+let highScore = localStorage.getItem("highScore") ? parseInt(localStorage.getItem("highScore")) : 0;
 let gameOver = false;
 let gameStarted = false;
+let isSpacePressed = false; // Nueva variable para rastrear la barra espaciadora
 const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
 const resetSlidersButton = document.getElementById("resetSliders");
@@ -142,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         if (gameStarted && !gameOver) {
             handleJump();
+            jumpButton.blur(); // Quitar el foco del botón
         }
     });
 
@@ -149,23 +152,32 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         if (gameStarted && !gameOver) {
             handleJump();
+            jumpButton.blur(); // Quitar el foco del botón
         }
     });
 
     document.addEventListener("keydown", function(event) {
-        if (event.code === "Space" && !gameStarted && !gameOver) {
-            startGame();
-        } else if (event.code === "Space" && gameStarted && !gameOver) {
-            handleJump();
+        if (event.code === "Space" && !isSpacePressed) {
+            if (!gameStarted && !gameOver) {
+                startGame();
+            } else if (gameStarted && !gameOver) {
+                handleJump();
+            }
+            isSpacePressed = true;
+        }
+    });
+
+    document.addEventListener("keyup", function(event) {
+        if (event.code === "Space") {
+            isSpacePressed = false;
         }
     });
 
     canvas.addEventListener("touchstart", function(event) {
+        event.preventDefault();
         if (!gameStarted && !gameOver) {
-            event.preventDefault();
             startGame();
         } else if (gameStarted && !gameOver) {
-            event.preventDefault();
             handleJump();
         }
     });
@@ -323,6 +335,10 @@ function checkCollision() {
             dino.y + dino.height > obstacle.y &&
             dino.y < obstacle.y + obstacle.canopySize
         ) {
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("highScore", highScore);
+            }
             restartButton.style.display = "block";
             jumpButton.style.display = "none";
             gameOver = true;
@@ -339,6 +355,10 @@ function checkCollision() {
             dino.x + 20 < trunkRight &&
             dino.y + dino.height > obstacle.y + obstacle.canopySize
         ) {
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("highScore", highScore);
+            }
             restartButton.style.display = "block";
             jumpButton.style.display = "none";
             gameOver = true;
@@ -360,6 +380,7 @@ function drawScore() {
     ctx.font = "20px Arial";
     ctx.textAlign = "right";
     ctx.fillText("Puntaje: " + score, canvas.width - 10, 30);
+    ctx.fillText("Mejor: " + highScore, canvas.width - 10, 60);
 }
 
 // Dibujar el suelo
