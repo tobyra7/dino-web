@@ -47,9 +47,10 @@ let clouds = [
 ];
 let score = 0;
 let highScore = localStorage.getItem("highScore") ? parseInt(localStorage.getItem("highScore")) : 0;
+console.log("HighScore inicial:", highScore); // Depuración
 let gameOver = false;
 let gameStarted = false;
-let isSpacePressed = false; // Nueva variable para rastrear la barra espaciadora
+let isSpacePressed = false;
 const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
 const resetSlidersButton = document.getElementById("resetSliders");
@@ -142,9 +143,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     jumpButton.addEventListener("touchstart", (event) => {
         event.preventDefault();
+        console.log("Toque en botón Saltar detectado");
         if (gameStarted && !gameOver) {
             handleJump();
-            jumpButton.blur(); // Quitar el foco del botón
+            jumpButton.blur();
         }
     });
 
@@ -152,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         if (gameStarted && !gameOver) {
             handleJump();
-            jumpButton.blur(); // Quitar el foco del botón
+            jumpButton.blur();
         }
     });
 
@@ -338,6 +340,7 @@ function checkCollision() {
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem("highScore", highScore);
+                console.log("Nuevo HighScore guardado:", highScore);
             }
             restartButton.style.display = "block";
             jumpButton.style.display = "none";
@@ -358,6 +361,7 @@ function checkCollision() {
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem("highScore", highScore);
+                console.log("Nuevo HighScore guardado:", highScore);
             }
             restartButton.style.display = "block";
             jumpButton.style.display = "none";
@@ -380,6 +384,9 @@ function drawScore() {
     ctx.font = "20px Arial";
     ctx.textAlign = "right";
     ctx.fillText("Puntaje: " + score, canvas.width - 10, 30);
+    ctx.fillStyle = "white";
+    ctx.fillRect(canvas.width - 100, 40, 90, 25);
+    ctx.fillStyle = "black";
     ctx.fillText("Mejor: " + highScore, canvas.width - 10, 60);
 }
 
