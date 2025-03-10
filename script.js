@@ -249,6 +249,10 @@ document.addEventListener("DOMContentLoaded", () => {
             handleJump();
         }
     });
+    const leaderboardButton = document.getElementById("leaderboardButton");
+    leaderboardButton.addEventListener("click", () => {
+        showLeaderboard();
+    });
 });
 
 // Función separada para manejar el salto
@@ -454,8 +458,6 @@ function checkCollision() {
                 localStorage.setItem("highScore", highScore);
                 console.log("Nuevo HighScore guardado:", highScore);
             }
-            restartButton.style.display = "block";
-            jumpButton.style.display = "none";
             gameOver = true;
             if (audioUnlocked && effectsEnabled) {
                 backgroundMusic.pause();
@@ -466,6 +468,8 @@ function checkCollision() {
                     console.error("Error al reproducir sonido de choque:", error);
                 });
             }
+            // Llamar a la API para verificar si el puntaje está en el TOP 5
+            checkAndShowNameInput(score);
             return true;
         }
         if (
@@ -478,8 +482,6 @@ function checkCollision() {
                 localStorage.setItem("highScore", highScore);
                 console.log("Nuevo HighScore guardado:", highScore);
             }
-            restartButton.style.display = "block";
-            jumpButton.style.display = "none";
             gameOver = true;
             if (audioUnlocked && effectsEnabled) {
                 backgroundMusic.pause();
@@ -490,6 +492,8 @@ function checkCollision() {
                     console.error("Error al reproducir sonido de choque:", error);
                 });
             }
+            // Llamar a la API para verificar si el puntaje está en el TOP 5
+            checkAndShowNameInput(score);
             return true;
         }
     }
@@ -530,6 +534,180 @@ function startGame() {
         });
     }
     gameLoop();
+}
+
+//Funciones de APIs
+
+function checkAndShowNameInput(score) {
+    fetch('https://dino-leaderboard-api.onrender.com/api/submit-score', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ score: score }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.inTop5) {
+            showNameInputForm(score);
+        } else {
+            showLeaderboard();
+        }
+    })
+    .catch(error => {
+        console.error('Error al enviar puntaje:', error);
+        showLeaderboard();
+    });
+}
+
+function showNameInputForm(score) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 'white';
+    ctx.font = '30px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('¡Estás en el TOP 5!', canvas.width / 2, canvas.height / 2 - 50);
+    ctx.fillText('Ingresa tu nombre:', canvas.width / 2, canvas.height / 2);
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Tu nombre';
+    input.style.position = 'absolute';
+    input.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
+    input.style.top = `${canvas.offsetTop + canvas.height / 2 + 20}px`;
+    input.style.width = '200px';
+    input.style.padding = '10px';
+    input.style.fontSize = '16px';
+    document.body.appendChild(input);
+
+    const submitButton = document.createElement('button');
+    submitButton.textContent = 'Guardar';
+    submitButton.style.position = 'absolute';
+    submitButton.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
+    submitButton.style.top = `${canvas.offsetTop + canvas.height / 2 + 60}px`;
+    submitButton.style.padding = '10px 20px';
+    submitButton.style.fontSize = '16px';
+    document.body.appendChild(submitButton);
+
+    submitButton.addEventListener('click', () => {
+        const name = input.value.trim();
+        if (name) {
+            fetch('https://dino-leaderboard-api.onrender.com/api/save-score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ score: score, name: name }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                input.remove();
+                submitButton.remove();
+                showLeaderboard(); // Esto ya mostrará el botón "Jugar de nuevo"
+            })
+            .catch(error => {
+                console.error('Error al guardar puntaje:', error);
+                input.remove();
+                submitButton.remove();
+                showLeaderboard(); // Esto ya mostrará el botón "Jugar de nuevo"
+            });
+        }
+    });
+}
+
+function showLeaderboard() {
+    fetch('https://dino-leaderboard-api.onrender.com/api/leaderboard')
+        .then(response => response.json())
+        .then(scores => {
+            const wasGameOver = gameOver;
+            gameOver = true;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = 'white';
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('TOP 5 Puntajes', canvas.width / 2, 100);
+
+            ctx.font = '20px Arial';
+            scores.forEach((entry, index) => {
+                ctx.fillText(
+                    `${index + 1}. ${entry.name}: ${formatNumber(entry.score)}`,
+                    canvas.width / 2,
+                    150 + index * 30
+                );
+            });
+
+            // Si el juego ya terminó, mostrar el botón "Jugar de nuevo"
+            if (wasGameOver) {
+                restartButton.style.display = "block";
+                jumpButton.style.display = "none";
+            } else {
+                // Si el juego no había terminado (el jugador solo quiso ver el leaderboard), mostrar un botón para volver
+                const backButton = document.createElement('button');
+                backButton.textContent = 'Volver al Juego';
+                backButton.style.position = 'absolute';
+                backButton.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
+                backButton.style.top = `${canvas.offsetTop + canvas.height - 60}px`;
+                backButton.style.padding = '10px 20px';
+                backButton.style.fontSize = '16px';
+                backButton.style.backgroundColor = '#f44336';
+                backButton.style.color = 'white';
+                backButton.style.border = 'none';
+                backButton.style.borderRadius = '5px';
+                backButton.style.cursor = 'pointer';
+                document.body.appendChild(backButton);
+
+                backButton.addEventListener('click', () => {
+                    backButton.remove();
+                    gameOver = false;
+                    if (gameStarted) {
+                        requestAnimationFrame(gameLoop);
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error al obtener leaderboard:', error);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Error al cargar el leaderboard', canvas.width / 2, canvas.height / 2);
+
+            // Si el juego ya terminó, mostrar el botón "Jugar de nuevo"
+            if (gameOver) {
+                restartButton.style.display = "block";
+                jumpButton.style.display = "none";
+            } else {
+                // Si el juego no había terminado, mostrar un botón para volver
+                const backButton = document.createElement('button');
+                backButton.textContent = 'Volver al Juego';
+                backButton.style.position = 'absolute';
+                backButton.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
+                backButton.style.top = `${canvas.offsetTop + canvas.height - 60}px`;
+                backButton.style.padding = '10px 20px';
+                backButton.style.fontSize = '16px';
+                backButton.style.backgroundColor = '#f44336';
+                backButton.style.color = 'white';
+                backButton.style.border = 'none';
+                backButton.style.borderRadius = '5px';
+                backButton.style.cursor = 'pointer';
+                document.body.appendChild(backButton);
+
+                backButton.addEventListener('click', () => {
+                    backButton.remove();
+                    gameOver = false;
+                    if (gameStarted) {
+                        requestAnimationFrame(gameLoop);
+                    }
+                });
+            }
+        });
 }
 
 // Reiniciar el juego

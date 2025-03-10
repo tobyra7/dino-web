@@ -6,6 +6,23 @@
     <meta name="viewport" content="width=900, user-scalable=no">
     <title>Tobysaurio Jump</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        #leaderboardButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #leaderboardButton:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <div class="game-container">
@@ -14,6 +31,7 @@
         <button id="startButton">Jugar</button>
         <button id="jumpButton">Saltar</button>
         <button id="restartButton">Jugar de nuevo</button>
+        <button id="leaderboardButton">Ver Leaderboard</button>
         <audio id="backgroundMusic" src="background-music.mp3" loop></audio>
         <audio id="crashSound" src="crash-sound.ogg"></audio>
         <audio id="jump1Sound" src="jump1.wav"></audio>
