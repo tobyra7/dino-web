@@ -551,20 +551,33 @@ function checkAndShowNameInput(score) {
         if (data.inTop5) {
             showNameInputForm(score);
         } else {
-            showLeaderboard();
+            // Si no está en el TOP 5, simplemente mostrar el botón "Jugar de nuevo"
+            restartButton.style.display = "block";
+            jumpButton.style.display = "none";
         }
     })
     .catch(error => {
         console.error('Error al enviar puntaje:', error);
-        showLeaderboard();
+        // En caso de error, también mostramos el botón "Jugar de nuevo" sin mostrar el leaderboard
+        restartButton.style.display = "block";
+        jumpButton.style.display = "none";
     });
 }
 
 function showNameInputForm(score) {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    // Fondo sólido para borrar el contenido previo
+    ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = 'white';
+    // Fondo estilizado para el formulario (rectángulo blanco con sombra)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillRect(canvas.width / 2 - 200, canvas.height / 2 - 100, 400, 200);
+    ctx.strokeStyle = 'green';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(canvas.width / 2 - 200, canvas.height / 2 - 100, 400, 200);
+
+    // Texto del formulario
+    ctx.fillStyle = 'green';
     ctx.font = '30px Arial';
     ctx.textAlign = 'center';
     ctx.fillText('¡Estás en el TOP 5!', canvas.width / 2, canvas.height / 2 - 50);
@@ -579,6 +592,11 @@ function showNameInputForm(score) {
     input.style.width = '200px';
     input.style.padding = '10px';
     input.style.fontSize = '16px';
+    input.style.border = '2px solid green';
+    input.style.borderRadius = '5px';
+    input.style.backgroundColor = '#e0f7e0'; // Fondo verde claro
+    input.style.color = 'black';
+    input.style.outline = 'none';
     document.body.appendChild(input);
 
     const submitButton = document.createElement('button');
@@ -586,8 +604,22 @@ function showNameInputForm(score) {
     submitButton.style.position = 'absolute';
     submitButton.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
     submitButton.style.top = `${canvas.offsetTop + canvas.height / 2 + 60}px`;
-    submitButton.style.padding = '10px 20px';
+    submitButton.style.width = '220px'; // Mismo ancho que el input
+    submitButton.style.padding = '10px';
     submitButton.style.fontSize = '16px';
+    submitButton.style.backgroundColor = '#4CAF50'; // Verde
+    submitButton.style.color = 'white';
+    submitButton.style.border = 'none';
+    submitButton.style.borderRadius = '5px';
+    submitButton.style.cursor = 'pointer';
+    submitButton.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+    submitButton.style.transition = 'background-color 0.3s';
+    submitButton.addEventListener('mouseover', () => {
+        submitButton.style.backgroundColor = '#45a049'; // Verde más oscuro al pasar el mouse
+    });
+    submitButton.addEventListener('mouseout', () => {
+        submitButton.style.backgroundColor = '#4CAF50'; // Volver al verde original
+    });
     document.body.appendChild(submitButton);
 
     submitButton.addEventListener('click', () => {
@@ -605,13 +637,13 @@ function showNameInputForm(score) {
                 console.log(data.message);
                 input.remove();
                 submitButton.remove();
-                showLeaderboard(); // Esto ya mostrará el botón "Jugar de nuevo"
+                showLeaderboard();
             })
             .catch(error => {
                 console.error('Error al guardar puntaje:', error);
                 input.remove();
                 submitButton.remove();
-                showLeaderboard(); // Esto ya mostrará el botón "Jugar de nuevo"
+                showLeaderboard();
             });
         }
     });
@@ -624,14 +656,25 @@ function showLeaderboard() {
             const wasGameOver = gameOver;
             gameOver = true;
 
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            // Fondo sólido para borrar el contenido previo
+            ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = 'white';
+            // Fondo estilizado para el leaderboard
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(canvas.width / 2 - 250, 50, 500, 300);
+            ctx.strokeStyle = 'green';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(canvas.width / 2 - 250, 50, 500, 300);
+
+            // Título del leaderboard
+            ctx.fillStyle = 'green';
             ctx.font = '30px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('TOP 5 Puntajes', canvas.width / 2, 100);
 
+            // Puntajes
+            ctx.fillStyle = 'black';
             ctx.font = '20px Arial';
             scores.forEach((entry, index) => {
                 ctx.fillText(
@@ -652,13 +695,22 @@ function showLeaderboard() {
                 backButton.style.position = 'absolute';
                 backButton.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
                 backButton.style.top = `${canvas.offsetTop + canvas.height - 60}px`;
-                backButton.style.padding = '10px 20px';
+                backButton.style.width = '200px';
+                backButton.style.padding = '10px';
                 backButton.style.fontSize = '16px';
-                backButton.style.backgroundColor = '#f44336';
+                backButton.style.backgroundColor = '#f44336'; // Rojo
                 backButton.style.color = 'white';
                 backButton.style.border = 'none';
                 backButton.style.borderRadius = '5px';
                 backButton.style.cursor = 'pointer';
+                backButton.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+                backButton.style.transition = 'background-color 0.3s';
+                backButton.addEventListener('mouseover', () => {
+                    backButton.style.backgroundColor = '#d32f2f'; // Rojo más oscuro
+                });
+                backButton.addEventListener('mouseout', () => {
+                    backButton.style.backgroundColor = '#f44336'; // Volver al rojo original
+                });
                 document.body.appendChild(backButton);
 
                 backButton.addEventListener('click', () => {
@@ -672,9 +724,19 @@ function showLeaderboard() {
         })
         .catch(error => {
             console.error('Error al obtener leaderboard:', error);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            // Fondo sólido para borrar el contenido previo
+            ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'white';
+
+            // Fondo estilizado para el mensaje de error
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(canvas.width / 2 - 250, 50, 500, 300);
+            ctx.strokeStyle = 'green';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(canvas.width / 2 - 250, 50, 500, 300);
+
+            // Mensaje de error
+            ctx.fillStyle = 'red';
             ctx.font = '20px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('Error al cargar el leaderboard', canvas.width / 2, canvas.height / 2);
@@ -690,13 +752,22 @@ function showLeaderboard() {
                 backButton.style.position = 'absolute';
                 backButton.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
                 backButton.style.top = `${canvas.offsetTop + canvas.height - 60}px`;
-                backButton.style.padding = '10px 20px';
+                backButton.style.width = '200px';
+                backButton.style.padding = '10px';
                 backButton.style.fontSize = '16px';
                 backButton.style.backgroundColor = '#f44336';
                 backButton.style.color = 'white';
                 backButton.style.border = 'none';
                 backButton.style.borderRadius = '5px';
                 backButton.style.cursor = 'pointer';
+                backButton.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+                backButton.style.transition = 'background-color 0.3s';
+                backButton.addEventListener('mouseover', () => {
+                    backButton.style.backgroundColor = '#d32f2f';
+                });
+                backButton.addEventListener('mouseout', () => {
+                    backButton.style.backgroundColor = '#f44336';
+                });
                 document.body.appendChild(backButton);
 
                 backButton.addEventListener('click', () => {
