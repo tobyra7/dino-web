@@ -607,8 +607,8 @@ function showLeaderboard() {
         .then(scores => {
             console.log('Datos del leaderboard:', scores);
             const wasGameOver = gameOver;
-            const wasGameStarted = gameStarted; // Guardar el estado de gameStarted
-            gameOver = true; // Pausar el juego mientras se muestra el leaderboard
+            const wasGameStarted = gameStarted;
+            gameOver = true;
 
             // Ocultar todos los botones mientras se muestra la pestaña
             document.getElementById('startButton').style.display = 'none';
@@ -657,48 +657,61 @@ function showLeaderboard() {
             ctx.textAlign = 'center';
             ctx.fillText('X', canvas.width / 2 + 185, 70);
 
-            // Evento para cerrar la pestaña al hacer clic en la X
-            canvas.addEventListener('click', closeLeaderboard);
+            // Función para cerrar el leaderboard
             function closeLeaderboard(event) {
-                const rect = canvas.getBoundingClientRect();
-                const clickX = event.clientX - rect.left;
-                const clickY = event.clientY - rect.top;
+                event.preventDefault();
+                let clickX, clickY;
+
+                // Determinar las coordenadas dependiendo del tipo de evento
+                if (event.type === 'touchstart') {
+                    const touch = event.touches[0];
+                    const rect = canvas.getBoundingClientRect();
+                    clickX = touch.clientX - rect.left;
+                    clickY = touch.clientY - rect.top;
+                } else {
+                    const rect = canvas.getBoundingClientRect();
+                    clickX = event.clientX - rect.left;
+                    clickY = event.clientY - rect.top;
+                }
+
+                // Verificar si el toque/clic está dentro del área de la "X"
                 if (clickX >= canvas.width / 2 + 170 && clickX <= canvas.width / 2 + 200 &&
                     clickY >= 50 && clickY <= 80) {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                     // Restaurar el estado de los botones según el estado del juego
                     if (wasGameStarted && !wasGameOver) {
-                        // Si el juego estaba en curso y no había terminado
                         document.getElementById('startButton').style.display = 'none';
                         document.getElementById('jumpButton').style.display = 'block';
                         document.getElementById('restartButton').style.display = 'none';
-                        gameOver = false; // Reanudar el juego
+                        gameOver = false;
                     } else if (wasGameOver) {
-                        // Si el juego había terminado
                         document.getElementById('startButton').style.display = 'none';
                         document.getElementById('jumpButton').style.display = 'none';
                         document.getElementById('restartButton').style.display = 'block';
                         gameOver = true;
                     } else {
-                        // Si el juego no había comenzado
                         document.getElementById('startButton').style.display = 'block';
                         document.getElementById('jumpButton').style.display = 'none';
                         document.getElementById('restartButton').style.display = 'none';
                         gameOver = false;
                     }
 
-                    // Siempre mostrar el botón "Top Scores" al cerrar
                     document.getElementById('topScoresButton').style.display = 'block';
 
-                    // Reanudar el bucle del juego si corresponde
                     if (wasGameStarted && !wasGameOver) {
                         requestAnimationFrame(gameLoop);
                     }
 
+                    // Remover los eventos para evitar duplicados
                     canvas.removeEventListener('click', closeLeaderboard);
+                    canvas.removeEventListener('touchstart', closeLeaderboard);
                 }
             }
+
+            // Añadir eventos para clic y toque
+            canvas.addEventListener('click', closeLeaderboard);
+            canvas.addEventListener('touchstart', closeLeaderboard);
         })
         .catch(error => {
             console.error('Error al obtener leaderboard:', error);
@@ -729,16 +742,26 @@ function showLeaderboard() {
             ctx.textAlign = 'center';
             ctx.fillText('X', canvas.width / 2 + 185, 70);
 
-            canvas.addEventListener('click', closeLeaderboard);
+            // Función para cerrar el leaderboard
             function closeLeaderboard(event) {
-                const rect = canvas.getBoundingClientRect();
-                const clickX = event.clientX - rect.left;
-                const clickY = event.clientY - rect.top;
+                event.preventDefault();
+                let clickX, clickY;
+
+                if (event.type === 'touchstart') {
+                    const touch = event.touches[0];
+                    const rect = canvas.getBoundingClientRect();
+                    clickX = touch.clientX - rect.left;
+                    clickY = touch.clientY - rect.top;
+                } else {
+                    const rect = canvas.getBoundingClientRect();
+                    clickX = event.clientX - rect.left;
+                    clickY = event.clientY - rect.top;
+                }
+
                 if (clickX >= canvas.width / 2 + 170 && clickX <= canvas.width / 2 + 200 &&
                     clickY >= 50 && clickY <= 80) {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    // Restaurar el estado de los botones según el estado del juego
                     if (wasGameStarted && !wasGameOver) {
                         document.getElementById('startButton').style.display = 'none';
                         document.getElementById('jumpButton').style.display = 'block';
@@ -763,8 +786,12 @@ function showLeaderboard() {
                     }
 
                     canvas.removeEventListener('click', closeLeaderboard);
+                    canvas.removeEventListener('touchstart', closeLeaderboard);
                 }
             }
+
+            canvas.addEventListener('click', closeLeaderboard);
+            canvas.addEventListener('touchstart', closeLeaderboard);
         });
 }
 
