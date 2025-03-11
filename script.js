@@ -48,7 +48,6 @@ function unlockAudio() {
             if (results.every(result => result)) {
                 audioUnlocked = true;
                 console.log("Todos los audios desbloqueados correctamente");
-                // Reproducir música si está habilitada
                 if (gameStarted && musicEnabled) {
                     backgroundMusic.play().catch(error => {
                         console.error("Error al reproducir música después de desbloquear:", error);
@@ -73,8 +72,8 @@ let dino = {
     grounded: true,
     jumps: 0,
     maxJumps: 3,
-    rotation: 0, // Ángulo de rotación en radianes
-    lastJumpTime: 0 // Tiempo del último salto para calcular el giro
+    rotation: 0,
+    lastJumpTime: 0
 };
 
 // Array para almacenar obstáculos y nubes
@@ -85,7 +84,6 @@ let clouds = [
 ];
 let score = 0;
 let highScore = localStorage.getItem("highScore") ? parseInt(localStorage.getItem("highScore")) : 0;
-console.log("HighScore inicial:", highScore);
 let gameOver = false;
 let gameStarted = false;
 let isSpacePressed = false;
@@ -176,7 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateSliderValue(treeSizeSlider, treeSizeValue, "x");
     });
 
-    // Controlar la música
     musicToggle.addEventListener("change", (e) => {
         musicEnabled = musicToggle.checked;
         if (!musicEnabled) {
@@ -187,22 +184,22 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
         console.log("Música habilitada:", musicEnabled);
-        e.stopPropagation(); // Evita que el evento se propague a otros elementos
-        musicToggle.blur(); // Quitar el focus del interruptor
+        e.stopPropagation();
+        musicToggle.blur();
     });
 
-    // Controlar los efectos
     effectsToggle.addEventListener("change", (e) => {
         effectsEnabled = effectsToggle.checked;
         console.log("Efectos habilitados:", effectsEnabled);
-        e.stopPropagation(); // Evita que el evento se propague a otros elementos
-        effectsToggle.blur(); // Quitar el focus del interruptor
+        e.stopPropagation();
+        effectsToggle.blur();
     });
 
     startButton.addEventListener("click", () => {
-        unlockAudio(); // Desbloquear el audio al hacer clic en "Jugar"
+        unlockAudio();
         startGame();
     });
+
     resetSlidersButton.addEventListener("click", resetSliders);
 
     jumpButton.addEventListener("touchstart", (event) => {
@@ -225,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", function(event) {
         if (event.code === "Space" && !isSpacePressed) {
             if (!gameStarted && !gameOver) {
-                unlockAudio(); // Desbloquear el audio al presionar espacio para iniciar
+                unlockAudio();
                 startGame();
             } else if (gameStarted && !gameOver) {
                 handleJump();
@@ -243,14 +240,16 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.addEventListener("touchstart", function(event) {
         event.preventDefault();
         if (!gameStarted && !gameOver) {
-            unlockAudio(); // Desbloquear el audio al tocar el canvas para iniciar
+            unlockAudio();
             startGame();
         } else if (gameStarted && !gameOver) {
             handleJump();
         }
     });
-    const leaderboardButton = document.getElementById("leaderboardButton");
-    leaderboardButton.addEventListener("click", () => {
+
+    const topScoresButton = document.getElementById("topScoresButton");
+    topScoresButton.addEventListener("click", () => {
+        console.log("Botón Top Scores clicado");
         showLeaderboard();
     });
 });
@@ -263,31 +262,25 @@ function handleJump() {
         dino.jumps++;
         console.log("Saltos actuales:", dino.jumps);
 
-        // Reproducir el sonido solo si los efectos están habilitados
         let jumpSound;
-        if (dino.jumps === 1) {
-            jumpSound = jump1Sound;
-        } else if (dino.jumps === 2) {
-            jumpSound = jump2Sound;
-        } else if (dino.jumps === 3) {
-            jumpSound = jump3Sound;
-        }
+        if (dino.jumps === 1) jumpSound = jump1Sound;
+        else if (dino.jumps === 2) jumpSound = jump2Sound;
+        else if (dino.jumps === 3) jumpSound = jump3Sound;
 
         if (jumpSound && audioUnlocked && effectsEnabled) {
-            jumpSound.currentTime = 0; // Reiniciar el sonido
+            jumpSound.currentTime = 0;
             jumpSound.play().catch(error => {
                 console.error(`Error al reproducir sonido de salto ${dino.jumps}:`, error);
             });
         }
 
-        // Reproducir música si está habilitada y pausada
         if (backgroundMusic.paused && audioUnlocked && musicEnabled) {
             backgroundMusic.play().catch(error => {
                 console.error("Error al reproducir música:", error);
             });
         }
 
-        if (dino.jumps > 1) { // Iniciar el tiempo del salto solo para el segundo y tercer salto
+        if (dino.jumps > 1) {
             dino.lastJumpTime = performance.now();
         }
     }
@@ -303,7 +296,6 @@ function spawnObstacles(timestamp) {
     }
 }
 
-// Propiedades de un obstáculo (arbolito)
 function createObstacle() {
     let baseTrunkHeight = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
     let baseCanopySize = Math.floor(Math.random() * (30 - 20 + 1)) + 20;
@@ -318,26 +310,21 @@ function createObstacle() {
     obstacles.push(obstacle);
 }
 
-// Dibujar el dinosaurio (T-Rex inclinado con frontflip)
 function drawDino() {
-    ctx.save(); // Guardar el estado actual del canvas
-
-    // Calcular la rotación solo para el segundo y tercer salto
+    ctx.save();
     if (!dino.grounded && (dino.jumps === 2 || dino.jumps === 3) && dino.lastJumpTime > 0) {
         const currentTime = performance.now();
-        const timeSinceJump = (currentTime - dino.lastJumpTime) / 400; // Ajustar 400 para controlar la velocidad del giro
-        dino.rotation = (timeSinceJump * 2 * Math.PI) % (2 * Math.PI); // Limitar a un solo giro de 360°
-        if (timeSinceJump > 1) dino.rotation = 2 * Math.PI; // Completar el giro después de 1 segundo
+        const timeSinceJump = (currentTime - dino.lastJumpTime) / 400;
+        dino.rotation = (timeSinceJump * 2 * Math.PI) % (2 * Math.PI);
+        if (timeSinceJump > 1) dino.rotation = 2 * Math.PI;
     } else {
-        dino.rotation = 0; // Sin rotación en el primer salto o en el suelo
+        dino.rotation = 0;
     }
 
-    // Trasladar el origen al centro del dinosaurio para la rotación
     ctx.translate(dino.x + dino.width / 2, dino.y + dino.height / 2);
     ctx.rotate(dino.rotation);
     ctx.translate(-dino.x - dino.width / 2, -dino.y - dino.height / 2);
 
-    // Dibujar el dinosaurio
     ctx.fillStyle = "green";
     ctx.beginPath();
     ctx.fillRect(dino.x + 20, dino.y + 40, 30, 10);
@@ -357,15 +344,10 @@ function drawDino() {
     ctx.fillStyle = "black";
     ctx.fillRect(dino.x + 52, dino.y + 7, 2, 2);
 
-    ctx.restore(); // Restaurar el estado del canvas
-
-    // Resetear lastJumpTime cuando toca el suelo
-    if (dino.grounded) {
-        dino.lastJumpTime = 0;
-    }
+    ctx.restore();
+    if (dino.grounded) dino.lastJumpTime = 0;
 }
 
-// Actualizar la posición del dinosaurio
 function updateDino() {
     if (!dino.grounded) {
         dino.dy += dino.gravity;
@@ -380,34 +362,17 @@ function updateDino() {
     }
 }
 
-// Dibujar los obstáculos (arbolitos)
 function drawObstacles() {
     obstacles.forEach(obstacle => {
         ctx.fillStyle = "brown";
-        ctx.fillRect(
-            obstacle.x,
-            obstacle.y + obstacle.canopySize,
-            obstacle.trunkWidth,
-            obstacle.trunkHeight
-        );
+        ctx.fillRect(obstacle.x, obstacle.y + obstacle.canopySize, obstacle.trunkWidth, obstacle.trunkHeight);
         ctx.fillStyle = "rgba(0, 128, 0, 0.7)";
         let canopyRadius = obstacle.canopySize / 2;
-        ctx.fillRect(
-            obstacle.x - canopyRadius + 5,
-            obstacle.y,
-            obstacle.canopySize,
-            obstacle.canopySize
-        );
-        ctx.fillRect(
-            obstacle.x - canopyRadius + 10,
-            obstacle.y - 5,
-            obstacle.canopySize - 10,
-            obstacle.canopySize + 10
-        );
+        ctx.fillRect(obstacle.x - canopyRadius + 5, obstacle.y, obstacle.canopySize, obstacle.canopySize);
+        ctx.fillRect(obstacle.x - canopyRadius + 10, obstacle.y - 5, obstacle.canopySize - 10, obstacle.canopySize + 10);
     });
 }
 
-// Actualizar los obstáculos
 function updateObstacles() {
     obstacles.forEach(obstacle => {
         obstacle.x -= obstacle.speed;
@@ -415,17 +380,11 @@ function updateObstacles() {
     obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.trunkWidth > 0);
 }
 
-// Dibujar y mover nubes
 function drawClouds() {
     clouds.forEach(cloud => {
         ctx.fillStyle = "rgba(180, 180, 180, 0.9)";
         cloud.parts.forEach(part => {
-            ctx.fillRect(
-                cloud.x + (part.offsetX || 0),
-                cloud.y + (part.offsetY || 0),
-                part.w,
-                part.h
-            );
+            ctx.fillRect(cloud.x + (part.offsetX || 0), cloud.y + (part.offsetY || 0), part.w, part.h);
         });
     });
 }
@@ -439,7 +398,6 @@ function updateClouds() {
     });
 }
 
-// Detectar colisiones
 function checkCollision() {
     for (let obstacle of obstacles) {
         let canopyLeft = obstacle.x - obstacle.canopySize / 2 + 5;
@@ -462,13 +420,10 @@ function checkCollision() {
             if (audioUnlocked && effectsEnabled) {
                 backgroundMusic.pause();
                 crashSound.currentTime = 0;
-                crashSound.play().then(() => {
-                    console.log("Sonido de choque reproducido");
-                }).catch(error => {
+                crashSound.play().catch(error => {
                     console.error("Error al reproducir sonido de choque:", error);
                 });
             }
-            // Llamar a la API para verificar si el puntaje está en el TOP 5
             checkAndShowNameInput(score);
             return true;
         }
@@ -486,13 +441,10 @@ function checkCollision() {
             if (audioUnlocked && effectsEnabled) {
                 backgroundMusic.pause();
                 crashSound.currentTime = 0;
-                crashSound.play().then(() => {
-                    console.log("Sonido de choque reproducido");
-                }).catch(error => {
+                crashSound.play().catch(error => {
                     console.error("Error al reproducir sonido de choque:", error);
                 });
             }
-            // Llamar a la API para verificar si el puntaje está en el TOP 5
             checkAndShowNameInput(score);
             return true;
         }
@@ -500,19 +452,20 @@ function checkCollision() {
     return false;
 }
 
-// Dibujar el puntaje (en la derecha)
 function drawScore() {
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.textAlign = "right";
+    ctx.fillStyle = '#f5f5f5';
+    ctx.fillRect(canvas.width - 120, 10, 110, 50);
+    ctx.strokeStyle = '#ddd';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(canvas.width - 120, 10, 110, 50);
+
+    ctx.fillStyle = '#333';
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'right';
     ctx.fillText("Score: " + formatNumber(score), canvas.width - 10, 30);
-    ctx.fillStyle = "white";
-    ctx.fillRect(canvas.width - 100, 40, 90, 25);
-    ctx.fillStyle = "black";
-    ctx.fillText("HighScore: " + formatNumber(highScore), canvas.width - 10, 60);
+    ctx.fillText("HighScore: " + formatNumber(highScore), canvas.width - 10, 50);
 }
 
-// Dibujar el suelo
 function drawGround() {
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
@@ -522,7 +475,6 @@ function drawGround() {
     ctx.stroke();
 }
 
-// Iniciar el juego
 function startGame() {
     startButton.style.display = "none";
     jumpButton.style.display = "block";
@@ -536,8 +488,7 @@ function startGame() {
     gameLoop();
 }
 
-//Funciones de APIs
-
+// Funciones de APIs
 function checkAndShowNameInput(score) {
     fetch('https://dino-leaderboard-api.onrender.com/api/submit-score', {
         method: 'POST',
@@ -551,32 +502,27 @@ function checkAndShowNameInput(score) {
         if (data.inTop5) {
             showNameInputForm(score);
         } else {
-            // Si no está en el TOP 5, simplemente mostrar el botón "Jugar de nuevo"
             restartButton.style.display = "block";
             jumpButton.style.display = "none";
         }
     })
     .catch(error => {
         console.error('Error al enviar puntaje:', error);
-        // En caso de error, también mostramos el botón "Jugar de nuevo" sin mostrar el leaderboard
         restartButton.style.display = "block";
         jumpButton.style.display = "none";
     });
 }
 
 function showNameInputForm(score) {
-    // Fondo sólido para borrar el contenido previo
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Fondo estilizado para el formulario (rectángulo blanco con sombra)
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.fillRect(canvas.width / 2 - 200, canvas.height / 2 - 100, 400, 200);
     ctx.strokeStyle = 'green';
     ctx.lineWidth = 3;
     ctx.strokeRect(canvas.width / 2 - 200, canvas.height / 2 - 100, 400, 200);
 
-    // Texto del formulario
     ctx.fillStyle = 'green';
     ctx.font = '30px Arial';
     ctx.textAlign = 'center';
@@ -594,7 +540,7 @@ function showNameInputForm(score) {
     input.style.fontSize = '16px';
     input.style.border = '2px solid green';
     input.style.borderRadius = '5px';
-    input.style.backgroundColor = '#e0f7e0'; // Fondo verde claro
+    input.style.backgroundColor = '#e0f7e0';
     input.style.color = 'black';
     input.style.outline = 'none';
     document.body.appendChild(input);
@@ -604,10 +550,10 @@ function showNameInputForm(score) {
     submitButton.style.position = 'absolute';
     submitButton.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
     submitButton.style.top = `${canvas.offsetTop + canvas.height / 2 + 60}px`;
-    submitButton.style.width = '220px'; // Mismo ancho que el input
+    submitButton.style.width = '220px';
     submitButton.style.padding = '10px';
     submitButton.style.fontSize = '16px';
-    submitButton.style.backgroundColor = '#4CAF50'; // Verde
+    submitButton.style.backgroundColor = '#4CAF50';
     submitButton.style.color = 'white';
     submitButton.style.border = 'none';
     submitButton.style.borderRadius = '5px';
@@ -615,10 +561,10 @@ function showNameInputForm(score) {
     submitButton.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
     submitButton.style.transition = 'background-color 0.3s';
     submitButton.addEventListener('mouseover', () => {
-        submitButton.style.backgroundColor = '#45a049'; // Verde más oscuro al pasar el mouse
+        submitButton.style.backgroundColor = '#45a049';
     });
     submitButton.addEventListener('mouseout', () => {
-        submitButton.style.backgroundColor = '#4CAF50'; // Volver al verde original
+        submitButton.style.backgroundColor = '#4CAF50';
     });
     document.body.appendChild(submitButton);
 
@@ -650,138 +596,178 @@ function showNameInputForm(score) {
 }
 
 function showLeaderboard() {
+    console.log("Intentando mostrar el leaderboard...");
     fetch('https://dino-leaderboard-api.onrender.com/api/leaderboard')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la solicitud al servidor');
+            }
+            return response.json();
+        })
         .then(scores => {
+            console.log('Datos del leaderboard:', scores);
             const wasGameOver = gameOver;
-            gameOver = true;
+            const wasGameStarted = gameStarted; // Guardar el estado de gameStarted
+            gameOver = true; // Pausar el juego mientras se muestra el leaderboard
+
+            // Ocultar todos los botones mientras se muestra la pestaña
+            document.getElementById('startButton').style.display = 'none';
+            document.getElementById('jumpButton').style.display = 'none';
+            document.getElementById('restartButton').style.display = 'none';
+            document.getElementById('topScoresButton').style.display = 'none';
 
             // Fondo sólido para borrar el contenido previo
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Fondo estilizado para el leaderboard
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.fillRect(canvas.width / 2 - 250, 50, 500, 300);
-            ctx.strokeStyle = 'green';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(canvas.width / 2 - 250, 50, 500, 300);
+            // Pestaña estilizada
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(canvas.width / 2 - 200, 50, 400, 300);
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(canvas.width / 2 - 200, 50, 400, 300);
 
             // Título del leaderboard
-            ctx.fillStyle = 'green';
-            ctx.font = '30px Arial';
+            ctx.fillStyle = '#333';
+            ctx.font = '24px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('TOP 5 Puntajes', canvas.width / 2, 100);
+            ctx.fillText('TOP 5 Scores', canvas.width / 2, 90);
 
             // Puntajes
-            ctx.fillStyle = 'black';
-            ctx.font = '20px Arial';
-            scores.forEach((entry, index) => {
-                ctx.fillText(
-                    `${index + 1}. ${entry.name}: ${formatNumber(entry.score)}`,
-                    canvas.width / 2,
-                    150 + index * 30
-                );
-            });
-
-            // Si el juego ya terminó, mostrar el botón "Jugar de nuevo"
-            if (wasGameOver) {
-                restartButton.style.display = "block";
-                jumpButton.style.display = "none";
+            ctx.fillStyle = '#333';
+            ctx.font = '16px Arial';
+            if (scores.length === 0) {
+                ctx.fillText('No hay puntajes aún', canvas.width / 2, 150);
             } else {
-                // Si el juego no había terminado (el jugador solo quiso ver el leaderboard), mostrar un botón para volver
-                const backButton = document.createElement('button');
-                backButton.textContent = 'Volver al Juego';
-                backButton.style.position = 'absolute';
-                backButton.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
-                backButton.style.top = `${canvas.offsetTop + canvas.height - 60}px`;
-                backButton.style.width = '200px';
-                backButton.style.padding = '10px';
-                backButton.style.fontSize = '16px';
-                backButton.style.backgroundColor = '#f44336'; // Rojo
-                backButton.style.color = 'white';
-                backButton.style.border = 'none';
-                backButton.style.borderRadius = '5px';
-                backButton.style.cursor = 'pointer';
-                backButton.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
-                backButton.style.transition = 'background-color 0.3s';
-                backButton.addEventListener('mouseover', () => {
-                    backButton.style.backgroundColor = '#d32f2f'; // Rojo más oscuro
+                scores.forEach((entry, index) => {
+                    const yPosition = 120 + index * 30;
+                    ctx.fillText(
+                        `${index + 1}. ${entry.name}: ${formatNumber(entry.score)}`,
+                        canvas.width / 2,
+                        yPosition
+                    );
                 });
-                backButton.addEventListener('mouseout', () => {
-                    backButton.style.backgroundColor = '#f44336'; // Volver al rojo original
-                });
-                document.body.appendChild(backButton);
+            }
 
-                backButton.addEventListener('click', () => {
-                    backButton.remove();
-                    gameOver = false;
-                    if (gameStarted) {
+            // Botón de cerrar (X)
+            ctx.fillStyle = '#d32f2f';
+            ctx.fillRect(canvas.width / 2 + 170, 50, 30, 30);
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('X', canvas.width / 2 + 185, 70);
+
+            // Evento para cerrar la pestaña al hacer clic en la X
+            canvas.addEventListener('click', closeLeaderboard);
+            function closeLeaderboard(event) {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = event.clientX - rect.left;
+                const clickY = event.clientY - rect.top;
+                if (clickX >= canvas.width / 2 + 170 && clickX <= canvas.width / 2 + 200 &&
+                    clickY >= 50 && clickY <= 80) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Restaurar el estado de los botones según el estado del juego
+                    if (wasGameStarted && !wasGameOver) {
+                        // Si el juego estaba en curso y no había terminado
+                        document.getElementById('startButton').style.display = 'none';
+                        document.getElementById('jumpButton').style.display = 'block';
+                        document.getElementById('restartButton').style.display = 'none';
+                        gameOver = false; // Reanudar el juego
+                    } else if (wasGameOver) {
+                        // Si el juego había terminado
+                        document.getElementById('startButton').style.display = 'none';
+                        document.getElementById('jumpButton').style.display = 'none';
+                        document.getElementById('restartButton').style.display = 'block';
+                        gameOver = true;
+                    } else {
+                        // Si el juego no había comenzado
+                        document.getElementById('startButton').style.display = 'block';
+                        document.getElementById('jumpButton').style.display = 'none';
+                        document.getElementById('restartButton').style.display = 'none';
+                        gameOver = false;
+                    }
+
+                    // Siempre mostrar el botón "Top Scores" al cerrar
+                    document.getElementById('topScoresButton').style.display = 'block';
+
+                    // Reanudar el bucle del juego si corresponde
+                    if (wasGameStarted && !wasGameOver) {
                         requestAnimationFrame(gameLoop);
                     }
-                });
+
+                    canvas.removeEventListener('click', closeLeaderboard);
+                }
             }
         })
         .catch(error => {
             console.error('Error al obtener leaderboard:', error);
-            // Fondo sólido para borrar el contenido previo
+            const wasGameOver = gameOver;
+            const wasGameStarted = gameStarted;
+            gameOver = true;
+
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Fondo estilizado para el mensaje de error
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.fillRect(canvas.width / 2 - 250, 50, 500, 300);
-            ctx.strokeStyle = 'green';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(canvas.width / 2 - 250, 50, 500, 300);
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(canvas.width / 2 - 200, 50, 400, 300);
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(canvas.width / 2 - 200, 50, 400, 300);
 
-            // Mensaje de error
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = '#d32f2f';
             ctx.font = '20px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('Error al cargar el leaderboard', canvas.width / 2, canvas.height / 2);
+            ctx.fillText('Error al cargar', canvas.width / 2, 120);
+            ctx.fillText('el leaderboard', canvas.width / 2, 150);
+            ctx.fillText(error.message, canvas.width / 2, 180);
 
-            // Si el juego ya terminó, mostrar el botón "Jugar de nuevo"
-            if (gameOver) {
-                restartButton.style.display = "block";
-                jumpButton.style.display = "none";
-            } else {
-                // Si el juego no había terminado, mostrar un botón para volver
-                const backButton = document.createElement('button');
-                backButton.textContent = 'Volver al Juego';
-                backButton.style.position = 'absolute';
-                backButton.style.left = `${canvas.offsetLeft + canvas.width / 2 - 100}px`;
-                backButton.style.top = `${canvas.offsetTop + canvas.height - 60}px`;
-                backButton.style.width = '200px';
-                backButton.style.padding = '10px';
-                backButton.style.fontSize = '16px';
-                backButton.style.backgroundColor = '#f44336';
-                backButton.style.color = 'white';
-                backButton.style.border = 'none';
-                backButton.style.borderRadius = '5px';
-                backButton.style.cursor = 'pointer';
-                backButton.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
-                backButton.style.transition = 'background-color 0.3s';
-                backButton.addEventListener('mouseover', () => {
-                    backButton.style.backgroundColor = '#d32f2f';
-                });
-                backButton.addEventListener('mouseout', () => {
-                    backButton.style.backgroundColor = '#f44336';
-                });
-                document.body.appendChild(backButton);
+            ctx.fillStyle = '#d32f2f';
+            ctx.fillRect(canvas.width / 2 + 170, 50, 30, 30);
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('X', canvas.width / 2 + 185, 70);
 
-                backButton.addEventListener('click', () => {
-                    backButton.remove();
-                    gameOver = false;
-                    if (gameStarted) {
+            canvas.addEventListener('click', closeLeaderboard);
+            function closeLeaderboard(event) {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = event.clientX - rect.left;
+                const clickY = event.clientY - rect.top;
+                if (clickX >= canvas.width / 2 + 170 && clickX <= canvas.width / 2 + 200 &&
+                    clickY >= 50 && clickY <= 80) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Restaurar el estado de los botones según el estado del juego
+                    if (wasGameStarted && !wasGameOver) {
+                        document.getElementById('startButton').style.display = 'none';
+                        document.getElementById('jumpButton').style.display = 'block';
+                        document.getElementById('restartButton').style.display = 'none';
+                        gameOver = false;
+                    } else if (wasGameOver) {
+                        document.getElementById('startButton').style.display = 'none';
+                        document.getElementById('jumpButton').style.display = 'none';
+                        document.getElementById('restartButton').style.display = 'block';
+                        gameOver = true;
+                    } else {
+                        document.getElementById('startButton').style.display = 'block';
+                        document.getElementById('jumpButton').style.display = 'none';
+                        document.getElementById('restartButton').style.display = 'none';
+                        gameOver = false;
+                    }
+
+                    document.getElementById('topScoresButton').style.display = 'block';
+
+                    if (wasGameStarted && !wasGameOver) {
                         requestAnimationFrame(gameLoop);
                     }
-                });
+
+                    canvas.removeEventListener('click', closeLeaderboard);
+                }
             }
         });
 }
 
-// Reiniciar el juego
 function restartGame() {
     dino.y = 340 - dino.height;
     dino.dy = 0;
@@ -802,13 +788,11 @@ function restartGame() {
     gameLoop();
 }
 
-// Botón de reinicio
 restartButton.addEventListener("click", () => {
-    unlockAudio(); // Desbloquear el audio al reiniciar
+    unlockAudio();
     restartGame();
 });
 
-// Bucle principal del juego
 function gameLoop(timestamp = 0) {
     if (gameOver || !gameStarted) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);

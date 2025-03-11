@@ -6,28 +6,33 @@
     <meta name="viewport" content="width=900, user-scalable=no">
     <title>Tobysaurio Jump</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        #leaderboardButton {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #d4e8d4;
+            padding: 5px 10px;
+            border-radius: 5px 5px 0 0;
         }
-        #leaderboardButton:hover {
-            background-color: #45a049;
+        #topScoresButton {
+            padding: 5px 10px;
+            font-size: 16px;
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        }
+        #topScoresButton:hover {
+            background-color: #e0e0e0;
         }
         #restartButton {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            top: 430px; /* Bajamos el botón para que esté debajo del leaderboard */
+            top: 380px;
             width: 200px;
             padding: 10px;
             font-size: 16px;
@@ -37,21 +42,26 @@
             border-radius: 5px;
             cursor: pointer;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s;
+            display: none;
         }
         #restartButton:hover {
             background-color: #45a049;
+        }
+        button {
+            font-family: Arial, sans-serif;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>Tobysaurio jump</h1>
+        <div class="header">
+            <h1>Tobysaurio jump</h1>
+            <button id="topScoresButton">🏆 TOP Scores</button>
+        </div>
         <canvas id="gameCanvas" width="800" height="400"></canvas>
         <button id="startButton">Jugar</button>
         <button id="jumpButton">Saltar</button>
         <button id="restartButton">Jugar de nuevo</button>
-        <button id="leaderboardButton">Ver Leaderboard</button>
         <audio id="backgroundMusic" src="background-music.mp3" loop></audio>
         <audio id="crashSound" src="crash-sound.ogg"></audio>
         <audio id="jump1Sound" src="jump1.wav"></audio>
@@ -100,7 +110,7 @@
             </div>
         </div>
     </div>
-    <footer>Designed by TobyRa - El Dino salta hasta 3 veces tocar el suelo ;) - V1.55</footer>
+    <footer>Designed by TobyRa - El Dino salta hasta 3 veces tocar el suelo ;) - V1.56</footer>
     <script src="script.js"></script>
 </body>
 </html>
