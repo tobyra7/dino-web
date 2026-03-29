@@ -87,6 +87,7 @@ let highScore = localStorage.getItem("highScore") ? parseInt(localStorage.getIte
 let gameOver = false;
 let gameStarted = false;
 let isSpacePressed = false;
+const API_TIMEOUT_MS = 2000;
 const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
 const resetSlidersButton = document.getElementById("resetSliders");
@@ -488,16 +489,29 @@ function startGame() {
     gameLoop();
 }
 
+function fetchWithTimeout(url, options = {}, timeoutMs = API_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    return fetch(url, { ...options, signal: controller.signal })
+        .finally(() => clearTimeout(timeoutId));
+}
+
 // Funciones de APIs
 function checkAndShowNameInput(score) {
-    fetch('https://dino-leaderboard-api.onrender.com/api/submit-score', {
+    fetchWithTimeout('https://dino-leaderboard-api.onrender.com/api/submit-score', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ score: score }),
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la solicitud al servidor');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.inTop5) {
             showNameInputForm(score);
@@ -507,6 +521,9 @@ function checkAndShowNameInput(score) {
         }
     })
     .catch(error => {
+        if (error.name === 'AbortError') {
+            console.warn('Tiempo de espera agotado al verificar TOP 5. Se omite la comprobación.');
+        }
         console.error('Error al enviar puntaje:', error);
         restartButton.style.display = "block";
         jumpButton.style.display = "none";
