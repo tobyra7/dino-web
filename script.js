@@ -497,8 +497,27 @@ function fetchWithTimeout(url, options = {}, timeoutMs = API_TIMEOUT_MS) {
         .finally(() => clearTimeout(timeoutId));
 }
 
+function showRestartAfterGameOver() {
+    startButton.style.display = "none";
+    jumpButton.style.display = "none";
+    restartButton.style.position = "fixed";
+    restartButton.style.left = "50%";
+    restartButton.style.top = "50%";
+    restartButton.style.transform = "translate(-50%, -50%)";
+    restartButton.style.zIndex = "2000";
+    restartButton.style.display = "block";
+}
+
 // Funciones de APIs
 function checkAndShowNameInput(score) {
+    let requestHandled = false;
+    const uiFallbackTimer = setTimeout(() => {
+        if (requestHandled) return;
+        requestHandled = true;
+        console.warn('Tiempo de espera agotado al verificar TOP 5. Se muestra reinicio.');
+        showRestartAfterGameOver();
+    }, API_TIMEOUT_MS);
+
     fetchWithTimeout('https://dino-leaderboard-api.onrender.com/api/submit-score', {
         method: 'POST',
         headers: {
@@ -513,20 +532,26 @@ function checkAndShowNameInput(score) {
         return response.json();
     })
     .then(data => {
+        if (requestHandled) return;
+        requestHandled = true;
+        clearTimeout(uiFallbackTimer);
+
         if (data.inTop5) {
             showNameInputForm(score);
         } else {
-            restartButton.style.display = "block";
-            jumpButton.style.display = "none";
+            showRestartAfterGameOver();
         }
     })
     .catch(error => {
+        if (requestHandled) return;
+        requestHandled = true;
+        clearTimeout(uiFallbackTimer);
+
         if (error.name === 'AbortError') {
             console.warn('Tiempo de espera agotado al verificar TOP 5. Se omite la comprobación.');
         }
         console.error('Error al enviar puntaje:', error);
-        restartButton.style.display = "block";
-        jumpButton.style.display = "none";
+        showRestartAfterGameOver();
     });
 }
 
